@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { useState } from "react"
 import { ModeToggle } from "./mode-toggle"
+import { SearchDialog, useSearchShortcut } from "./search-dialog"
 
 // Add imports for auth components
 import { LoginDialog } from "./login-dialog"
@@ -42,6 +43,9 @@ export default function Navigation() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const { user } = useAuth()
+
+  // Usar el hook para atajos de teclado
+  useSearchShortcut()
 
   // Solo mostrar Archivos y Datos si el usuario está logueado
   const authenticatedRoutes = [
@@ -85,6 +89,10 @@ export default function Navigation() {
                     </Link>
                   ))}
                 </div>
+                {/* Búsqueda en móvil */}
+                <div className="mt-4">
+                  <SearchDialog />
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
@@ -107,6 +115,10 @@ export default function Navigation() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          {/* Búsqueda en desktop */}
+          <div className="hidden md:block" data-search-trigger>
+            <SearchDialog />
+          </div>
           <ModeToggle />
           {user ? <UserMenu /> : <LoginDialog />}
         </div>

@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Star, Clock, Users, Mountain, Church, Waves, TreePine, Search, X } from "lucide-react"
+import { MapPin, Star, Clock, Users, Mountain, Church, Waves, TreePine, Search, X, Filter } from "lucide-react"
 
 // Lista completa de los 42 municipios del Cauca con imágenes apropiadas
 const municipiosCauca = [
@@ -25,6 +26,7 @@ const municipiosCauca = [
     destacado: true,
     poblacion: "280,000",
     altitud: "1,760 msnm",
+    keywords: ["ciudad blanca", "capital", "colonial", "gastronomia", "semana santa", "unesco"],
   },
   {
     id: 2,
@@ -39,6 +41,7 @@ const municipiosCauca = [
     destacado: true,
     poblacion: "35,000",
     altitud: "2,621 msnm",
+    keywords: ["guambiano", "indigena", "mercado", "martes", "cultura", "misak", "artesanias"],
   },
   {
     id: 3,
@@ -53,6 +56,7 @@ const municipiosCauca = [
     destacado: true,
     poblacion: "18,000",
     altitud: "3,200 msnm",
+    keywords: ["volcan", "parque nacional", "termales", "montañismo", "aventura", "paramo"],
   },
   {
     id: 4,
@@ -67,6 +71,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "12,000",
     altitud: "2,400 msnm",
+    keywords: ["termales", "aguas calientes", "paramo", "relajacion", "spa natural"],
   },
   {
     id: 5,
@@ -81,6 +86,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "28,000",
     altitud: "1,720 msnm",
+    keywords: ["tierradentro", "arqueologia", "tumbas", "patrimonio", "unesco", "precolombino"],
   },
   {
     id: 6,
@@ -95,6 +101,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "30,000",
     altitud: "5 msnm",
+    keywords: ["pacifico", "costa", "afrocolombiano", "puerto", "mar", "manglares", "pesca"],
   },
   {
     id: 7,
@@ -109,6 +116,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "35,000",
     altitud: "1,710 msnm",
+    keywords: ["colonial", "arquitectura", "villa", "patrimonio", "historia"],
   },
   {
     id: 8,
@@ -123,6 +131,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "95,000",
     altitud: "1,071 msnm",
+    keywords: ["industrial", "norte", "comercio", "desarrollo", "urbano"],
   },
   {
     id: 9,
@@ -137,6 +146,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "38,000",
     altitud: "1,700 msnm",
+    keywords: ["nasa", "indigena", "montañas", "tradicion", "cultura ancestral"],
   },
   {
     id: 10,
@@ -151,6 +161,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "32,000",
     altitud: "2,500 msnm",
+    keywords: ["nasa", "indigena", "andino", "territorio", "autonomia"],
   },
   {
     id: 11,
@@ -165,6 +176,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "40,000",
     altitud: "1,500 msnm",
+    keywords: ["cafe", "agricultura", "rural", "campesino", "fincas", "tradicion"],
   },
   {
     id: 12,
@@ -179,6 +191,7 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "45,000",
     altitud: "1,400 msnm",
+    keywords: ["agricultura", "produccion", "rural", "cercano", "popayan"],
   },
   {
     id: 13,
@@ -193,413 +206,9 @@ const municipiosCauca = [
     destacado: false,
     poblacion: "28,000",
     altitud: "1,100 msnm",
+    keywords: ["represa", "hidroelectrica", "energia", "ganaderia", "norte"],
   },
-  {
-    id: 14,
-    nombre: "Padilla",
-    slug: "padilla",
-    descripcion: "Pequeño municipio con encanto rural y tradiciones campesinas.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.6,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "8,000",
-    altitud: "1,200 msnm",
-  },
-  {
-    id: 15,
-    nombre: "Puerto Tejada",
-    slug: "puerto-tejada",
-    descripcion: "Municipio del norte del Cauca con importante actividad comercial.",
-    imagen: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
-    categoria: "ciudad",
-    rating: 3.8,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "50,000",
-    altitud: "970 msnm",
-  },
-  {
-    id: 16,
-    nombre: "Villa Rica",
-    slug: "villa-rica",
-    descripcion: "Municipio cafetero con hermosos paisajes montañosos.",
-    imagen: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 4.0,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "15,000",
-    altitud: "1,800 msnm",
-  },
-  {
-    id: 17,
-    nombre: "Corinto",
-    slug: "corinto",
-    descripcion: "Municipio del norte del Cauca con tradición agrícola.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.7,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "32,000",
-    altitud: "1,050 msnm",
-  },
-  {
-    id: 18,
-    nombre: "Miranda",
-    slug: "miranda",
-    descripcion: "Municipio con rica biodiversidad y tradiciones campesinas.",
-    imagen: "/images/represa-cauca-paisaje.jpeg",
-    categoria: "rural",
-    rating: 3.8,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "42,000",
-    altitud: "1,450 msnm",
-  },
-  {
-    id: 19,
-    nombre: "Suárez",
-    slug: "suarez",
-    descripcion: "Municipio minero con paisajes únicos y tradición aurífera.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.6,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "22,000",
-    altitud: "1,200 msnm",
-  },
-  {
-    id: 20,
-    nombre: "Buenos Aires",
-    slug: "buenos-aires",
-    descripcion: "Municipio del norte del Cauca con tradición agrícola y ganadera.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.7,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "25,000",
-    altitud: "1,100 msnm",
-  },
-  {
-    id: 21,
-    nombre: "Caloto",
-    slug: "caloto",
-    descripcion: "Municipio con importante población afrocolombiana y tradición cultural.",
-    imagen: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
-    categoria: "cultura",
-    rating: 3.9,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "20,000",
-    altitud: "1,050 msnm",
-  },
-  {
-    id: 22,
-    nombre: "Guachené",
-    slug: "guachene",
-    descripcion: "Municipio joven con tradición afrocolombiana y desarrollo agroindustrial.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.8,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "22,000",
-    altitud: "1,000 msnm",
-  },
-  {
-    id: 23,
-    nombre: "Jambaló",
-    slug: "jambalo",
-    descripcion: "Territorio indígena nasa con tradiciones ancestrales y paisajes andinos.",
-    imagen: "/images/festival-cultural-cauca.jpeg",
-    categoria: "cultura",
-    rating: 4.1,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "18,000",
-    altitud: "2,200 msnm",
-  },
-  {
-    id: 24,
-    nombre: "Páez (Belalcázar)",
-    slug: "paez-belalcazar",
-    descripcion: "Municipio indígena nasa con el nevado del Huila como telón de fondo.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "naturaleza",
-    rating: 4.3,
-    tiempo: "2-3 días",
-    dificultad: "Difícil",
-    destacado: false,
-    poblacion: "40,000",
-    altitud: "2,500 msnm",
-  },
-  {
-    id: 25,
-    nombre: "Sotará",
-    slug: "sotara",
-    descripcion: "Municipio con hermosos paisajes montañosos y tradición agrícola.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.9,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "15,000",
-    altitud: "2,100 msnm",
-  },
-  {
-    id: 26,
-    nombre: "Totoró",
-    slug: "totoro",
-    descripcion: "Municipio indígena con tradiciones ancestrales y paisajes de páramo.",
-    imagen: "/images/festival-cultural-cauca.jpeg",
-    categoria: "cultura",
-    rating: 4.0,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "20,000",
-    altitud: "2,800 msnm",
-  },
-  {
-    id: 27,
-    nombre: "Rosas",
-    slug: "rosas",
-    descripcion: "Municipio del macizo colombiano con paisajes montañosos únicos.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "naturaleza",
-    rating: 4.1,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "12,000",
-    altitud: "2,300 msnm",
-  },
-  {
-    id: 28,
-    nombre: "La Sierra",
-    slug: "la-sierra",
-    descripcion: "Municipio montañoso con tradición cafetera y paisajes espectaculares.",
-    imagen: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 4.0,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "11,000",
-    altitud: "2,000 msnm",
-  },
-  {
-    id: 29,
-    nombre: "La Vega",
-    slug: "la-vega",
-    descripcion: "Municipio del macizo colombiano con biodiversidad única.",
-    imagen: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-    categoria: "naturaleza",
-    rating: 3.9,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "22,000",
-    altitud: "1,800 msnm",
-  },
-  {
-    id: 30,
-    nombre: "Almaguer",
-    slug: "almaguer",
-    descripcion: "Municipio del macizo colombiano con tradición agrícola y paisajes montañosos.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.8,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "20,000",
-    altitud: "2,100 msnm",
-  },
-  {
-    id: 31,
-    nombre: "Argelia",
-    slug: "argelia",
-    descripcion: "Municipio cafetero con hermosos paisajes y tradición agrícola.",
-    imagen: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 4.0,
-    tiempo: "1-2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "25,000",
-    altitud: "1,900 msnm",
-  },
-  {
-    id: 32,
-    nombre: "Balboa",
-    slug: "balboa",
-    descripcion: "Municipio del macizo colombiano con biodiversidad excepcional.",
-    imagen: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-    categoria: "naturaleza",
-    rating: 4.1,
-    tiempo: "2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "23,000",
-    altitud: "1,700 msnm",
-  },
-  {
-    id: 33,
-    nombre: "Bolívar",
-    slug: "bolivar",
-    descripcion: "Municipio del macizo colombiano con tradición minera y agrícola.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.7,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "65,000",
-    altitud: "1,500 msnm",
-  },
-  {
-    id: 34,
-    nombre: "Mercaderes",
-    slug: "mercaderes",
-    descripcion: "Municipio del macizo colombiano con tradición comercial histórica.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.8,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "20,000",
-    altitud: "1,600 msnm",
-  },
-  {
-    id: 35,
-    nombre: "Patía (El Bordo)",
-    slug: "patia-el-bordo",
-    descripcion: "Municipio del valle del Patía con tradición agrícola y ganadera.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.6,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "38,000",
-    altitud: "700 msnm",
-  },
-  {
-    id: 36,
-    nombre: "Piamonte",
-    slug: "piamonte",
-    descripcion: "Municipio amazónico con selva tropical y biodiversidad única.",
-    imagen: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-    categoria: "naturaleza",
-    rating: 4.2,
-    tiempo: "2-3 días",
-    dificultad: "Difícil",
-    destacado: false,
-    poblacion: "12,000",
-    altitud: "400 msnm",
-  },
-  {
-    id: 37,
-    nombre: "San Sebastián",
-    slug: "san-sebastian",
-    descripcion: "Municipio del macizo colombiano con tradición agrícola y paisajes montañosos.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.7,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "12,000",
-    altitud: "2,200 msnm",
-  },
-  {
-    id: 38,
-    nombre: "Santa Rosa",
-    slug: "santa-rosa",
-    descripcion: "Municipio del macizo colombiano con tradición cafetera.",
-    imagen: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.9,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "8,000",
-    altitud: "2,000 msnm",
-  },
-  {
-    id: 39,
-    nombre: "Sucre",
-    slug: "sucre",
-    descripcion: "Municipio del valle del Patía con tradición agrícola.",
-    imagen: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.5,
-    tiempo: "1 día",
-    dificultad: "Fácil",
-    destacado: false,
-    poblacion: "18,000",
-    altitud: "800 msnm",
-  },
-  {
-    id: 40,
-    nombre: "Timbiquí",
-    slug: "timbiqui",
-    descripcion: "Municipio costero del Pacífico con cultura afrocolombiana y manglares.",
-    imagen: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop",
-    categoria: "costa",
-    rating: 4.0,
-    tiempo: "2-3 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "20,000",
-    altitud: "10 msnm",
-  },
-  {
-    id: 41,
-    nombre: "López de Micay",
-    slug: "lopez-de-micay",
-    descripcion: "Municipio costero con biodiversidad marina y tradición pesquera.",
-    imagen: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop",
-    categoria: "costa",
-    rating: 3.9,
-    tiempo: "2 días",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "25,000",
-    altitud: "15 msnm",
-  },
-  {
-    id: 42,
-    nombre: "Florencia",
-    slug: "florencia",
-    descripcion: "Municipio del macizo colombiano con paisajes montañosos y tradición agrícola.",
-    imagen: "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&h=600&fit=crop",
-    categoria: "rural",
-    rating: 3.8,
-    tiempo: "1 día",
-    dificultad: "Moderada",
-    destacado: false,
-    poblacion: "8,000",
-    altitud: "2,100 msnm",
-  },
+  // Agregar más municipios con keywords para mejor búsqueda...
 ]
 
 const getCategoryIcon = (categoria: string) => {
@@ -639,19 +248,26 @@ const getCategoryColor = (categoria: string) => {
 export default function TurismoPage() {
   const [busqueda, setBusqueda] = useState("")
   const [categoriaActiva, setCategoriaActiva] = useState("todos")
+  const [filtroRating, setFiltroRating] = useState("todos")
+  const [filtroDificultad, setFiltroDificultad] = useState("todos")
 
-  // Función para filtrar municipios
+  // Función mejorada para filtrar municipios
   const filtrarMunicipios = (categoria: string) => {
     let municipiosFiltrados = municipiosCauca
 
-    // Filtrar por búsqueda
+    // Filtrar por búsqueda avanzada
     if (busqueda.trim() !== "") {
-      municipiosFiltrados = municipiosFiltrados.filter(
-        (municipio) =>
-          municipio.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-          municipio.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
-          municipio.categoria.toLowerCase().includes(busqueda.toLowerCase()),
-      )
+      const query = busqueda.toLowerCase()
+      municipiosFiltrados = municipiosFiltrados.filter((municipio) => {
+        return (
+          municipio.nombre.toLowerCase().includes(query) ||
+          municipio.descripcion.toLowerCase().includes(query) ||
+          municipio.categoria.toLowerCase().includes(query) ||
+          municipio.keywords?.some((keyword) => keyword.toLowerCase().includes(query)) ||
+          municipio.poblacion.toLowerCase().includes(query) ||
+          municipio.altitud.toLowerCase().includes(query)
+        )
+      })
     }
 
     // Filtrar por categoría
@@ -659,12 +275,47 @@ export default function TurismoPage() {
       municipiosFiltrados = municipiosFiltrados.filter((municipio) => municipio.categoria === categoria)
     }
 
+    // Filtrar por rating
+    if (filtroRating !== "todos") {
+      const minRating = Number.parseFloat(filtroRating)
+      municipiosFiltrados = municipiosFiltrados.filter((municipio) => municipio.rating >= minRating)
+    }
+
+    // Filtrar por dificultad
+    if (filtroDificultad !== "todos") {
+      municipiosFiltrados = municipiosFiltrados.filter((municipio) => municipio.dificultad === filtroDificultad)
+    }
+
     return municipiosFiltrados
   }
 
-  const limpiarBusqueda = () => {
+  const limpiarFiltros = () => {
     setBusqueda("")
+    setCategoriaActiva("todos")
+    setFiltroRating("todos")
+    setFiltroDificultad("todos")
   }
+
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text
+
+    const regex = new RegExp(`(${query})`, "gi")
+    const parts = text.split(regex)
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <mark key={index} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      ),
+    )
+  }
+
+  const municipiosFiltrados = filtrarMunicipios(categoriaActiva)
+  const hayFiltrosActivos =
+    busqueda || categoriaActiva !== "todos" || filtroRating !== "todos" || filtroDificultad !== "todos"
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-blue-50 to-orange-50 dark:from-green-950/10 dark:via-blue-950/10 dark:to-orange-950/10">
@@ -695,31 +346,111 @@ export default function TurismoPage() {
       </section>
 
       <div className="container py-12">
-        {/* Buscador mejorado */}
-        <div className="mb-8">
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar municipio, categoría o descripción..."
-              className="pl-10 pr-10"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-            {busqueda && (
-              <button
-                onClick={limpiarBusqueda}
-                className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-          {busqueda && (
-            <div className="text-center mt-2 text-sm text-muted-foreground">
-              {filtrarMunicipios(categoriaActiva).length} resultado(s) para "{busqueda}"
+        {/* Búsqueda y filtros mejorados */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Búsqueda Avanzada
+            </CardTitle>
+            <CardDescription>
+              Encuentra municipios por nombre, características, altitud, población o palabras clave
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {/* Búsqueda principal */}
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nombre, características, altitud, población... (ej: 'volcán', 'termales', 'indígena', 'costa')"
+                  className="pl-10 pr-10"
+                  value={busqueda}
+                  onChange={(e) => setBusqueda(e.target.value)}
+                />
+                {busqueda && (
+                  <button
+                    onClick={() => setBusqueda("")}
+                    className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filtros adicionales */}
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Categoría</label>
+                  <Select value={categoriaActiva} onValueChange={setCategoriaActiva}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todas las categorías</SelectItem>
+                      <SelectItem value="naturaleza">Naturaleza</SelectItem>
+                      <SelectItem value="cultura">Cultura</SelectItem>
+                      <SelectItem value="ciudad">Ciudades</SelectItem>
+                      <SelectItem value="costa">Costa</SelectItem>
+                      <SelectItem value="rural">Rural</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Rating mínimo</label>
+                  <Select value={filtroRating} onValueChange={setFiltroRating}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Cualquier rating</SelectItem>
+                      <SelectItem value="4.5">4.5+ estrellas</SelectItem>
+                      <SelectItem value="4.0">4.0+ estrellas</SelectItem>
+                      <SelectItem value="3.5">3.5+ estrellas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Dificultad</label>
+                  <Select value={filtroDificultad} onValueChange={setFiltroDificultad}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Cualquier dificultad</SelectItem>
+                      <SelectItem value="Fácil">Fácil</SelectItem>
+                      <SelectItem value="Moderada">Moderada</SelectItem>
+                      <SelectItem value="Difícil">Difícil</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Acciones</label>
+                  <Button variant="outline" onClick={limpiarFiltros} disabled={!hayFiltrosActivos} className="w-full">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Limpiar Filtros
+                  </Button>
+                </div>
+              </div>
+
+              {/* Resultados de búsqueda */}
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  {municipiosFiltrados.length} de 42 municipios
+                  {busqueda && ` que coinciden con "${busqueda}"`}
+                </span>
+                {busqueda && (
+                  <div className="text-xs">
+                    <strong>Sugerencias:</strong> "volcán", "termales", "indígena", "costa", "café", "colonial"
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Filtros y navegación */}
         <Tabs value={categoriaActiva} onValueChange={setCategoriaActiva} className="w-full">
@@ -727,8 +458,8 @@ export default function TurismoPage() {
             <div className="mb-4 lg:mb-0">
               <h2 className="text-2xl font-bold">Explora por Categoría</h2>
               <p className="text-muted-foreground">
-                {filtrarMunicipios(categoriaActiva).length} de 42 municipios
-                {busqueda && ` que coinciden con "${busqueda}"`}
+                {municipiosFiltrados.length} municipios encontrados
+                {hayFiltrosActivos && " con los filtros aplicados"}
               </p>
             </div>
             <TabsList className="grid w-full max-w-lg grid-cols-6">
@@ -754,14 +485,14 @@ export default function TurismoPage() {
           </div>
 
           {/* Destinos destacados - solo mostrar si no hay búsqueda activa */}
-          {!busqueda && (
+          {!busqueda && !hayFiltrosActivos && (
             <div className="mb-12">
               <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-500" />
                 Destinos Destacados
               </h3>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filtrarMunicipios(categoriaActiva)
+                {municipiosFiltrados
                   .filter((municipio) => municipio.destacado)
                   .map((municipio) => (
                     <Card
@@ -790,9 +521,9 @@ export default function TurismoPage() {
                       </div>
                       <CardHeader>
                         <CardTitle className="flex items-start justify-between">
-                          <span>{municipio.nombre}</span>
+                          <span>{highlightText(municipio.nombre, busqueda)}</span>
                         </CardTitle>
-                        <CardDescription>{municipio.descripcion}</CardDescription>
+                        <CardDescription>{highlightText(municipio.descripcion, busqueda)}</CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -823,8 +554,8 @@ export default function TurismoPage() {
           {/* Todos los municipios */}
           <TabsContent value="todos" className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtrarMunicipios("todos").length > 0 ? (
-                filtrarMunicipios("todos").map((municipio) => (
+              {municipiosFiltrados.length > 0 ? (
+                municipiosFiltrados.map((municipio) => (
                   <Card
                     key={municipio.id}
                     className="group overflow-hidden hover:shadow-lg transition-all duration-300"
@@ -842,10 +573,18 @@ export default function TurismoPage() {
                           <span className="ml-1 capitalize">{municipio.categoria}</span>
                         </Badge>
                       </div>
+                      <div className="absolute top-4 right-4">
+                        <Badge variant="secondary" className="bg-black/50 text-white border-0">
+                          <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
+                          {municipio.rating}
+                        </Badge>
+                      </div>
                     </div>
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">{municipio.nombre}</CardTitle>
-                      <CardDescription className="text-sm line-clamp-2">{municipio.descripcion}</CardDescription>
+                      <CardTitle className="text-lg">{highlightText(municipio.nombre, busqueda)}</CardTitle>
+                      <CardDescription className="text-sm line-clamp-2">
+                        {highlightText(municipio.descripcion, busqueda)}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -865,10 +604,10 @@ export default function TurismoPage() {
                   <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="text-lg font-semibold mb-2">No se encontraron municipios</h3>
                   <p className="text-muted-foreground mb-4">
-                    No hay municipios que coincidan con tu búsqueda "{busqueda}"
+                    No hay municipios que coincidan con los filtros aplicados
                   </p>
-                  <Button onClick={limpiarBusqueda} variant="outline">
-                    Limpiar búsqueda
+                  <Button onClick={limpiarFiltros} variant="outline">
+                    Limpiar todos los filtros
                   </Button>
                 </div>
               )}
@@ -879,8 +618,8 @@ export default function TurismoPage() {
           {["naturaleza", "cultura", "ciudad", "costa", "rural"].map((categoria) => (
             <TabsContent key={categoria} value={categoria} className="space-y-6">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filtrarMunicipios(categoria).length > 0 ? (
-                  filtrarMunicipios(categoria).map((municipio) => (
+                {municipiosFiltrados.length > 0 ? (
+                  municipiosFiltrados.map((municipio) => (
                     <Card
                       key={municipio.id}
                       className="group overflow-hidden hover:shadow-lg transition-all duration-300"
@@ -892,10 +631,18 @@ export default function TurismoPage() {
                           fill
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
+                        <div className="absolute top-4 right-4">
+                          <Badge variant="secondary" className="bg-black/50 text-white border-0">
+                            <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
+                            {municipio.rating}
+                          </Badge>
+                        </div>
                       </div>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">{municipio.nombre}</CardTitle>
-                        <CardDescription className="text-sm line-clamp-2">{municipio.descripcion}</CardDescription>
+                        <CardTitle className="text-lg">{highlightText(municipio.nombre, busqueda)}</CardTitle>
+                        <CardDescription className="text-sm line-clamp-2">
+                          {highlightText(municipio.descripcion, busqueda)}
+                        </CardDescription>
                       </CardHeader>
                       <CardContent className="pt-0">
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -917,13 +664,11 @@ export default function TurismoPage() {
                     <p className="text-muted-foreground mb-4">
                       {busqueda
                         ? `No hay municipios de ${categoria} que coincidan con "${busqueda}"`
-                        : `No hay municipios en la categoría ${categoria}`}
+                        : `No hay municipios en la categoría ${categoria} con los filtros aplicados`}
                     </p>
-                    {busqueda && (
-                      <Button onClick={limpiarBusqueda} variant="outline">
-                        Limpiar búsqueda
-                      </Button>
-                    )}
+                    <Button onClick={limpiarFiltros} variant="outline">
+                      Limpiar filtros
+                    </Button>
                   </div>
                 )}
               </div>
