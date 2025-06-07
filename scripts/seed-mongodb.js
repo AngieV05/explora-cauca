@@ -36,12 +36,12 @@ const UserPreferencesSchema = new mongoose.Schema(
     },
     privacy: {
       profileVisible: { type: Boolean, default: true },
-      activityVisible: { type: Boolean, default: false },
+      showActivity: { type: Boolean, default: false },
     },
     preferences: {
       language: { type: String, default: "es" },
       theme: { type: String, default: "system" },
-      region: { type: String, default: "cauca" },
+      region: { type: String, default: "Cauca" },
     },
   },
   { timestamps: true },
@@ -80,6 +80,14 @@ async function seedDatabase() {
         role: "admin",
         emailVerified: true,
       },
+      {
+        email: "ana@example.com",
+        password: hashedPassword,
+        name: "Ana Rodríguez",
+        phone: "+57 302 456 7890",
+        role: "user",
+        emailVerified: true,
+      },
     ])
 
     console.log("👥 Usuarios creados:", users.length)
@@ -95,12 +103,12 @@ async function seedDatabase() {
         },
         privacy: {
           profileVisible: true,
-          activityVisible: false,
+          showActivity: false,
         },
         preferences: {
           language: "es",
           theme: "system",
-          region: "cauca",
+          region: "Cauca",
         },
       })
     }
@@ -111,6 +119,7 @@ async function seedDatabase() {
     console.log("\n📋 Usuarios de prueba:")
     console.log("👤 Usuario: juan@example.com | Contraseña: 123456 | Rol: user")
     console.log("👨‍💼 Admin: admin@example.com | Contraseña: 123456 | Rol: admin")
+    console.log("👩 Usuario: ana@example.com | Contraseña: 123456 | Rol: user")
   } catch (error) {
     console.error("❌ Error inicializando la base de datos:", error)
   } finally {

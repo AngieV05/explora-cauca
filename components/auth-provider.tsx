@@ -1,65 +1,141 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { authenticateUser, getUserById, type User } from "@/lib/mock-data"
+import {
+  authenticateUser,
+  createUser,
+  validateSession,
+  createUserSession,
+  deleteSession,
+  getUserById,
+  type UserData,
+} from "@/lib/auth-utils"
 
 interface AuthContextType {
-  user: User | null
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
+  user: UserData | null
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  register: (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string,
+  ) => Promise<{ success: boolean; error?: string }>
+  logout: () => Promise<void>
   isLoading: boolean
-  refreshUser: () => void
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Verificar si hay una sesión guardada
-    const savedUser = localStorage.getItem("user")
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
-    }
-    setIsLoading(false)
+    checkExistingSession()
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const checkExistingSession = async () => {
+    try {
+      const sessionToken = localStorage.getItem("session_token")
+      if (sessionToken) {
+        const user = await validateSession(sessionToken)
+        if (user) {
+          setUser(user)
+        } else {
+          localStorage.removeItem("session_token")
+        }
+      }
+    } catch (error) {
+      console.error("Error checking session:", error)
+      localStorage.removeItem("session_token")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true)
 
-    // Simular autenticación
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    const user = authenticateUser(email, password)
-    if (user) {
-      setUser(user)
-      localStorage.setItem("user", JSON.stringify(user))
+    try {
+      const user = await authenticateUser(email, password)
+      if (user) {
+        const sessionToken = await createUserSession(user.id)
+        if (sessionToken) {
+          localStorage.setItem("session_token", sessionToken)
+          setUser(user)
+          setIsLoading(false)
+          return { success: true }
+        } else {
+          setIsLoading(false)
+          return { success: false, error: "Error al crear la sesión" }
+        }
+      } else {
+        setIsLoading(false)
+        return { success: false, error: "Credenciales incorrectas" }
+      }
+    } catch (error) {
+      console.error("Login error:", error)
       setIsLoading(false)
-      return true
+      return { success: false, error: "Error interno del servidor" }
     }
-
-    setIsLoading(false)
-    return false
   }
 
-  const logout = () => {
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    phone?: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    setIsLoading(true)
+
+    try {
+      const newUser = await createUser(email, password, name, phone)
+      if (newUser) {
+        const sessionToken = await createUserSession(newUser.id)
+        if (sessionToken) {
+          localStorage.setItem("session_token", sessionToken)
+          setUser(newUser)
+          setIsLoading(false)
+          return { success: true }
+        } else {
+          setIsLoading(false)
+          return { success: false, error: "Usuario creado pero error al iniciar sesión" }
+        }
+      } else {
+        setIsLoading(false)
+        return { success: false, error: "Error al crear el usuario. El email podría estar en uso." }
+      }
+    } catch (error) {
+      console.error("Register error:", error)
+      setIsLoading(false)
+      return { success: false, error: "Error interno del servidor" }
+    }
+  }
+
+  const logout = async () => {
+    const sessionToken = localStorage.getItem("session_token")
+    if (sessionToken) {
+      await deleteSession(sessionToken)
+      localStorage.removeItem("session_token")
+    }
     setUser(null)
-    localStorage.removeItem("user")
   }
 
-  const refreshUser = () => {
+  const refreshUser = async () => {
     if (user) {
-      const refreshedUser = getUserById(user.id)
-      if (refreshedUser) {
-        setUser(refreshedUser)
-        localStorage.setItem("user", JSON.stringify(refreshedUser))
+      const updatedUser = await getUserById(user.id)
+      if (updatedUser) {
+        setUser(updatedUser)
       }
     }
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading, refreshUser }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading, refreshUser }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {
