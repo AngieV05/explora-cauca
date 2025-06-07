@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MapPin, Search, Filter, Navigation } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { MapPin, Search, Filter, Navigation, ExternalLink, Info } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import GoogleMapComponent from "@/components/google-map"
@@ -115,7 +116,7 @@ const municipiosConCoordenadas = [
 ]
 
 export default function MapaPage() {
-  const [selectedMunicipio, setSelectedMunicipio] = useState(null)
+  const [selectedMunicipio, setSelectedMunicipio] = useState<any>(null)
   const [filtroCategoria, setFiltroCategoria] = useState("todos")
   const [busqueda, setBusqueda] = useState("")
 
@@ -127,7 +128,7 @@ export default function MapaPage() {
   })
 
   // Función para obtener el color de la categoría
-  const getCategoryColorClass = (categoria) => {
+  const getCategoryColorClass = (categoria: string) => {
     switch (categoria) {
       case "naturaleza":
         return "bg-green-500"
@@ -171,6 +172,23 @@ export default function MapaPage() {
       </section>
 
       <div className="container py-8">
+        {/* Alerta informativa sobre la API key */}
+        <Alert className="mb-6">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Modo Demo:</strong> Este mapa funciona en modo demostración. Para usar Google Maps real, necesitas
+            configurar una API key válida.{" "}
+            <a
+              href="https://developers.google.com/maps/documentation/javascript/get-api-key"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:no-underline inline-flex items-center gap-1"
+            >
+              Obtener API Key <ExternalLink className="h-3 w-3" />
+            </a>
+          </AlertDescription>
+        </Alert>
+
         <div className="grid gap-6 lg:grid-cols-4">
           {/* Panel de control */}
           <Card className="lg:col-span-1">
@@ -251,10 +269,10 @@ export default function MapaPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Componente de Google Maps */}
+              {/* Componente de Google Maps con fallback */}
               <GoogleMapComponent
                 municipios={municipiosFiltrados}
-                apiKey="TU_API_KEY_AQUI" // Reemplaza con tu API key de Google Maps
+                apiKey="DEMO_MODE" // Esto activará el modo demo
                 onSelectMunicipio={setSelectedMunicipio}
                 selectedMunicipio={selectedMunicipio}
               />
