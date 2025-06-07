@@ -11,8 +11,8 @@ export default function Home() {
       <section className="relative h-screen overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/festival-cultural-cauca.jpeg"
-            alt="Festival Cultural del Cauca - Tradiciones Ancestrales"
+            src="/images/explora-cauca-hero.png"
+            alt="Chiva tradicional del Cauca - Explora Cauca"
             fill
             className="object-cover object-center"
             priority
