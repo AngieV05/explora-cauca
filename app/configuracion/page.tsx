@@ -1,287 +1,298 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Settings, Bell, Globe, Shield, Palette, Save } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/components/auth-provider"
-import { redirect } from "next/navigation"
+import { getUserPreferences, updateUserPreferences, type UserPreferences } from "@/lib/mock-data"
 
 export default function ConfiguracionPage() {
-  const { user } = useAuth()
-  const [settings, setSettings] = useState({
-    notifications: {
-      email: true,
-      push: false,
-      sms: false,
-    },
-    privacy: {
-      profileVisible: true,
-      activityVisible: false,
-    },
-    preferences: {
-      language: "es",
-      theme: "system",
-      region: "cauca",
-    },
-  })
-  const [saved, setSaved] = useState(false)
+  const { user, isLoading } = useAuth()
+  const router = useRouter()
+  const { toast } = useToast()
+  const [preferences, setPreferences] = useState<UserPreferences | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
-  if (!user) {
-    redirect("/")
-  }
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/")
+    } else if (user) {
+      // Cargar preferencias del usuario
+      const userPrefs = getUserPreferences(user.id)
+      setPreferences(userPrefs)
+    }
+  }, [user, isLoading, router])
 
-  const handleSave = () => {
+  const handleSavePreferences = async () => {
+    if (!user || !preferences) return
+
+    setIsSaving(true)
+
     // Simular guardado
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // Actualizar preferencias
+    updateUserPreferences(user.id, preferences)
+
+    setIsSaving(false)
+
+    toast({
+      title: "Preferencias actualizadas",
+      description: "Tus preferencias han sido guardadas correctamente.",
+    })
   }
 
-  const updateNotification = (key: string, value: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      notifications: { ...prev.notifications, [key]: value },
-    }))
+  const updateNotificationSetting = (key: keyof UserPreferences["notifications"], value: boolean) => {
+    if (!preferences) return
+
+    setPreferences({
+      ...preferences,
+      notifications: {
+        ...preferences.notifications,
+        [key]: value,
+      },
+    })
   }
 
-  const updatePrivacy = (key: string, value: boolean) => {
-    setSettings((prev) => ({
-      ...prev,
-      privacy: { ...prev.privacy, [key]: value },
-    }))
+  const updatePrivacySetting = (key: keyof UserPreferences["privacy"], value: boolean) => {
+    if (!preferences) return
+
+    setPreferences({
+      ...preferences,
+      privacy: {
+        ...preferences.privacy,
+        [key]: value,
+      },
+    })
   }
 
-  const updatePreference = (key: string, value: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      preferences: { ...prev.preferences, [key]: value },
-    }))
+  const updatePreference = (key: keyof UserPreferences["preferences"], value: string) => {
+    if (!preferences) return
+
+    setPreferences({
+      ...preferences,
+      preferences: {
+        ...preferences.preferences,
+        [key]: value,
+      },
+    })
+  }
+
+  if (isLoading || !preferences) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Cargando preferencias...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      <div className="container py-12">
-        <div className="flex items-center gap-2 mb-8">
-          <Settings className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Configuración</h1>
-        </div>
-
-        {saved && (
-          <Alert className="mb-6">
-            <Save className="h-4 w-4" />
-            <AlertDescription className="text-green-600">Configuración guardada exitosamente.</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Notificaciones */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notificaciones
-                </CardTitle>
-                <CardDescription>Configura cómo y cuándo quieres recibir notificaciones</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Notificaciones por email</Label>
-                    <p className="text-sm text-muted-foreground">Recibe actualizaciones sobre nuevos destinos</p>
-                  </div>
-                  <Switch
-                    checked={settings.notifications.email}
-                    onCheckedChange={(checked) => updateNotification("email", checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Notificaciones push</Label>
-                    <p className="text-sm text-muted-foreground">Alertas en tiempo real en tu navegador</p>
-                  </div>
-                  <Switch
-                    checked={settings.notifications.push}
-                    onCheckedChange={(checked) => updateNotification("push", checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Notificaciones SMS</Label>
-                    <p className="text-sm text-muted-foreground">Mensajes de texto para eventos importantes</p>
-                  </div>
-                  <Switch
-                    checked={settings.notifications.sms}
-                    onCheckedChange={(checked) => updateNotification("sms", checked)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Privacidad */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Privacidad
-                </CardTitle>
-                <CardDescription>Controla la visibilidad de tu información</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Perfil público</Label>
-                    <p className="text-sm text-muted-foreground">Permite que otros usuarios vean tu perfil</p>
-                  </div>
-                  <Switch
-                    checked={settings.privacy.profileVisible}
-                    onCheckedChange={(checked) => updatePrivacy("profileVisible", checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Actividad visible</Label>
-                    <p className="text-sm text-muted-foreground">Muestra tu actividad reciente a otros usuarios</p>
-                  </div>
-                  <Switch
-                    checked={settings.privacy.activityVisible}
-                    onCheckedChange={(checked) => updatePrivacy("activityVisible", checked)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Preferencias */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="h-5 w-5" />
-                  Preferencias
-                </CardTitle>
-                <CardDescription>Personaliza tu experiencia en el portal</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Idioma</Label>
-                    <Select
-                      value={settings.preferences.language}
-                      onValueChange={(value) => updatePreference("language", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="es">Español</SelectItem>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="fr">Français</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Tema</Label>
-                    <Select
-                      value={settings.preferences.theme}
-                      onValueChange={(value) => updatePreference("theme", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="light">Claro</SelectItem>
-                        <SelectItem value="dark">Oscuro</SelectItem>
-                        <SelectItem value="system">Sistema</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Región de interés</Label>
-                  <Select
-                    value={settings.preferences.region}
-                    onValueChange={(value) => updatePreference("region", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cauca">Todo el Cauca</SelectItem>
-                      <SelectItem value="norte">Norte del Cauca</SelectItem>
-                      <SelectItem value="centro">Centro del Cauca</SelectItem>
-                      <SelectItem value="sur">Sur del Cauca</SelectItem>
-                      <SelectItem value="costa">Costa Pacífica</SelectItem>
-                      <SelectItem value="macizo">Macizo Colombiano</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Información de la Cuenta</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium">Usuario</Label>
-                  <p className="text-sm text-muted-foreground">{user.name}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Email</Label>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Rol</Label>
-                  <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
-                </div>
-                <Separator />
-                <div>
-                  <Label className="text-sm font-medium">Miembro desde</Label>
-                  <p className="text-sm text-muted-foreground">Enero 2023</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Acciones de Cuenta</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <Globe className="mr-2 h-4 w-4" />
-                  Exportar Datos
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Cambiar Contraseña
-                </Button>
-                <Separator />
-                <Button variant="destructive" className="w-full justify-start">
-                  Eliminar Cuenta
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Button onClick={handleSave} className="w-full">
-              <Save className="mr-2 h-4 w-4" />
-              Guardar Cambios
-            </Button>
-          </div>
-        </div>
+    <div className="container mx-auto py-10">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Configuración</h1>
+        <p className="text-muted-foreground">Administra tus preferencias y configuración de cuenta.</p>
       </div>
+
+      <Tabs defaultValue="cuenta">
+        <TabsList className="mb-8">
+          <TabsTrigger value="cuenta">Cuenta</TabsTrigger>
+          <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
+          <TabsTrigger value="privacidad">Privacidad</TabsTrigger>
+          <TabsTrigger value="preferencias">Preferencias</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="cuenta">
+          <Card>
+            <CardHeader>
+              <CardTitle>Información de Cuenta</CardTitle>
+              <CardDescription>Actualiza la información de tu cuenta.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nombre</Label>
+                <Input id="name" defaultValue={user.name} disabled />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Correo electrónico</Label>
+                <Input id="email" defaultValue={user.email} disabled />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Rol</Label>
+                <Input id="role" defaultValue={user.role === "admin" ? "Administrador" : "Usuario"} disabled />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <p className="text-sm text-muted-foreground">
+                Para cambiar tu información de cuenta, contacta al administrador.
+              </p>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notificaciones">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notificaciones</CardTitle>
+              <CardDescription>Configura cómo quieres recibir notificaciones.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="email-notifications">Notificaciones por correo</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Recibe actualizaciones y ofertas por correo electrónico.
+                  </p>
+                </div>
+                <Switch
+                  id="email-notifications"
+                  checked={preferences.notifications.email}
+                  onCheckedChange={(checked) => updateNotificationSetting("email", checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="push-notifications">Notificaciones push</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Recibe notificaciones en tiempo real en tu dispositivo.
+                  </p>
+                </div>
+                <Switch
+                  id="push-notifications"
+                  checked={preferences.notifications.push}
+                  onCheckedChange={(checked) => updateNotificationSetting("push", checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="sms-notifications">Notificaciones SMS</Label>
+                  <p className="text-sm text-muted-foreground">Recibe alertas importantes por mensaje de texto.</p>
+                </div>
+                <Switch
+                  id="sms-notifications"
+                  checked={preferences.notifications.sms}
+                  onCheckedChange={(checked) => updateNotificationSetting("sms", checked)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleSavePreferences} disabled={isSaving}>
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="privacidad">
+          <Card>
+            <CardHeader>
+              <CardTitle>Privacidad</CardTitle>
+              <CardDescription>Controla quién puede ver tu información.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="profile-visible">Perfil visible</Label>
+                  <p className="text-sm text-muted-foreground">Permite que otros usuarios vean tu perfil.</p>
+                </div>
+                <Switch
+                  id="profile-visible"
+                  checked={preferences.privacy.profileVisible}
+                  onCheckedChange={(checked) => updatePrivacySetting("profileVisible", checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="show-activity">Mostrar actividad</Label>
+                  <p className="text-sm text-muted-foreground">Permite que otros vean tu actividad reciente.</p>
+                </div>
+                <Switch
+                  id="show-activity"
+                  checked={preferences.privacy.showActivity}
+                  onCheckedChange={(checked) => updatePrivacySetting("showActivity", checked)}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleSavePreferences} disabled={isSaving}>
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="preferencias">
+          <Card>
+            <CardHeader>
+              <CardTitle>Preferencias</CardTitle>
+              <CardDescription>Personaliza tu experiencia en la plataforma.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="language">Idioma</Label>
+                <Select
+                  value={preferences.preferences.language}
+                  onValueChange={(value) => updatePreference("language", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un idioma" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="es">Español</SelectItem>
+                    <SelectItem value="en">Inglés</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="theme">Tema</Label>
+                <Select
+                  value={preferences.preferences.theme}
+                  onValueChange={(value) => updatePreference("theme", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona un tema" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Claro</SelectItem>
+                    <SelectItem value="dark">Oscuro</SelectItem>
+                    <SelectItem value="system">Sistema</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="region">Región</Label>
+                <Select
+                  value={preferences.preferences.region}
+                  onValueChange={(value) => updatePreference("region", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una región" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cauca">Cauca</SelectItem>
+                    <SelectItem value="Valle">Valle del Cauca</SelectItem>
+                    <SelectItem value="Nariño">Nariño</SelectItem>
+                    <SelectItem value="Huila">Huila</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleSavePreferences} disabled={isSaving}>
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

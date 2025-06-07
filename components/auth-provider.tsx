@@ -1,13 +1,14 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { mockUsers, type User } from "@/lib/mock-data"
+import { authenticateUser, getUserById, type User } from "@/lib/mock-data"
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
   isLoading: boolean
+  refreshUser: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -31,10 +32,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Simular autenticación
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const foundUser = mockUsers.find((u) => u.email === email)
-    if (foundUser && password === "123456") {
-      setUser(foundUser)
-      localStorage.setItem("user", JSON.stringify(foundUser))
+    const user = authenticateUser(email, password)
+    if (user) {
+      setUser(user)
+      localStorage.setItem("user", JSON.stringify(user))
       setIsLoading(false)
       return true
     }
@@ -48,7 +49,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("user")
   }
 
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  const refreshUser = () => {
+    if (user) {
+      const refreshedUser = getUserById(user.id)
+      if (refreshedUser) {
+        setUser(refreshedUser)
+        localStorage.setItem("user", JSON.stringify(refreshedUser))
+      }
+    }
+  }
+
+  return <AuthContext.Provider value={{ user, login, logout, isLoading, refreshUser }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
