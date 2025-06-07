@@ -27,7 +27,7 @@ import {
   TreePine,
   Info,
 } from "lucide-react"
-import { getMunicipioBySlug, getAllMunicipioSlugs } from "@/lib/municipios-data"
+import { getMunicipioBySlug } from "@/lib/municipios-data"
 
 interface PageProps {
   params: {
@@ -90,12 +90,8 @@ const getAttractionIcon = (tipo: string) => {
   }
 }
 
-export async function generateStaticParams() {
-  const slugs = getAllMunicipioSlugs()
-  return slugs.map((slug) => ({
-    municipio: slug,
-  }))
-}
+// Remove generateStaticParams to make it fully dynamic
+export const dynamic = "force-dynamic"
 
 export default function MunicipioPage({ params }: PageProps) {
   const municipio = getMunicipioBySlug(params.municipio)
