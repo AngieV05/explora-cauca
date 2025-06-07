@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Settings, Bell, Globe, Shield, Palette, Save, Loader2 } from "lucide-react"
+import { Settings, Bell, Globe, Shield, Palette, Save } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { redirect } from "next/navigation"
 
@@ -30,22 +30,16 @@ export default function ConfiguracionPage() {
       region: "cauca",
     },
   })
-  const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   if (!user) {
     redirect("/")
   }
 
-  const handleSave = async () => {
-    setLoading(true)
-    // Simular guardado por ahora
-    setTimeout(() => {
-      setSaved(true)
-      setLoading(false)
-      setTimeout(() => setSaved(false), 3000)
-    }, 1000)
+  const handleSave = () => {
+    // Simular guardado
+    setSaved(true)
+    setTimeout(() => setSaved(false), 3000)
   }
 
   const updateNotification = (key: string, value: boolean) => {
@@ -81,13 +75,6 @@ export default function ConfiguracionPage() {
           <Alert className="mb-6">
             <Save className="h-4 w-4" />
             <AlertDescription className="text-green-600">Configuración guardada exitosamente.</AlertDescription>
-          </Alert>
-        )}
-
-        {error && (
-          <Alert className="mb-6">
-            <Save className="h-4 w-4" />
-            <AlertDescription className="text-red-600">{error}</AlertDescription>
           </Alert>
         )}
 
@@ -263,13 +250,7 @@ export default function ConfiguracionPage() {
                 <Separator />
                 <div>
                   <Label className="text-sm font-medium">Miembro desde</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(user.createdAt).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Enero 2023</p>
                 </div>
               </CardContent>
             </Card>
@@ -294,8 +275,8 @@ export default function ConfiguracionPage() {
               </CardContent>
             </Card>
 
-            <Button onClick={handleSave} disabled={loading} className="w-full">
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            <Button onClick={handleSave} className="w-full">
+              <Save className="mr-2 h-4 w-4" />
               Guardar Cambios
             </Button>
           </div>
