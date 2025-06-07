@@ -90,7 +90,7 @@ const getAttractionIcon = (tipo: string) => {
   }
 }
 
-// Remove generateStaticParams to make it fully dynamic
+// Configurar como página dinámica
 export const dynamic = "force-dynamic"
 
 export default function MunicipioPage({ params }: PageProps) {
