@@ -1,16 +1,17 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { MapPin, Search, Filter, Navigation, Layers } from "lucide-react"
+import { MapPin, Search, Filter, Navigation } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import GoogleMapComponent from "@/components/google-map"
 
-// Datos de municipios con coordenadas aproximadas
+// Datos de municipios con coordenadas reales
 const municipiosConCoordenadas = [
   {
     nombre: "Popayán",
@@ -114,26 +115,19 @@ const municipiosConCoordenadas = [
 ]
 
 export default function MapaPage() {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [selectedMunicipio, setSelectedMunicipio] = useState<any>(null)
+  const [selectedMunicipio, setSelectedMunicipio] = useState(null)
   const [filtroCategoria, setFiltroCategoria] = useState("todos")
   const [busqueda, setBusqueda] = useState("")
 
-  useEffect(() => {
-    // Simulación de mapa interactivo con Leaflet
-    if (typeof window !== "undefined" && mapRef.current) {
-      // En una implementación real, aquí cargarías Leaflet
-      console.log("Mapa inicializado")
-    }
-  }, [])
-
+  // Función para filtrar municipios
   const municipiosFiltrados = municipiosConCoordenadas.filter((municipio) => {
     const coincideBusqueda = municipio.nombre.toLowerCase().includes(busqueda.toLowerCase())
     const coincideCategoria = filtroCategoria === "todos" || municipio.categoria === filtroCategoria
     return coincideBusqueda && coincideCategoria
   })
 
-  const getCategoryColor = (categoria: string) => {
+  // Función para obtener el color de la categoría
+  const getCategoryColorClass = (categoria) => {
     switch (categoria) {
       case "naturaleza":
         return "bg-green-500"
@@ -151,9 +145,9 @@ export default function MapaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 dark:from-green-950/10 dark:to-blue-950/10">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 via-blue-50 to-orange-50 dark:from-green-950/10 dark:via-blue-950/10 dark:to-orange-950/10">
       {/* Header con imagen de fondo */}
-      <section className="relative h-64 overflow-hidden">
+      <section className="relative h-96 overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="/images/represa-cauca-paisaje.jpeg"
@@ -168,9 +162,9 @@ export default function MapaPage() {
             <div className="max-w-3xl text-white">
               <div className="flex items-center gap-2 mb-4">
                 <MapPin className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Mapa Interactivo del Cauca</h1>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Mapa Interactivo del Cauca</h1>
               </div>
-              <p className="text-lg opacity-90">Explora los 42 municipios desde una perspectiva geográfica</p>
+              <p className="text-xl opacity-90">Explora los 42 municipios desde una perspectiva geográfica</p>
             </div>
           </div>
         </div>
@@ -236,6 +230,10 @@ export default function MapaPage() {
                     <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                     <span className="text-sm">Costa</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-yellow-600"></div>
+                    <span className="text-sm">Rural</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -249,49 +247,17 @@ export default function MapaPage() {
                 Mapa del Departamento del Cauca
               </CardTitle>
               <CardDescription>
-                Explora los 42 municipios del Cauca. Haz clic en cualquier punto para ver más información.
+                Explora los municipios del Cauca. Haz clic en cualquier marcador para ver más información.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Simulación de mapa interactivo */}
-              <div
-                ref={mapRef}
-                className="relative w-full h-96 bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 overflow-hidden"
-              >
-                {/* Simulación de puntos en el mapa */}
-                {municipiosFiltrados.map((municipio, index) => (
-                  <div
-                    key={municipio.slug}
-                    className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 group"
-                    style={{
-                      left: `${20 + (index % 8) * 10}%`,
-                      top: `${20 + Math.floor(index / 8) * 15}%`,
-                    }}
-                    onClick={() => setSelectedMunicipio(municipio)}
-                  >
-                    <div
-                      className={`w-4 h-4 rounded-full ${getCategoryColor(municipio.categoria)} shadow-lg group-hover:scale-125 transition-transform`}
-                    ></div>
-                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                      {municipio.nombre}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Mensaje de mapa interactivo */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center p-8 bg-white/80 dark:bg-black/80 rounded-lg backdrop-blur-sm">
-                    <Layers className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">Mapa Interactivo del Cauca</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      En una implementación completa, aquí se cargaría un mapa real con Leaflet o Google Maps
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Los puntos mostrados representan la ubicación aproximada de los municipios
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {/* Componente de Google Maps */}
+              <GoogleMapComponent
+                municipios={municipiosFiltrados}
+                apiKey="TU_API_KEY_AQUI" // Reemplaza con tu API key de Google Maps
+                onSelectMunicipio={setSelectedMunicipio}
+                selectedMunicipio={selectedMunicipio}
+              />
 
               {/* Información del municipio seleccionado */}
               {selectedMunicipio && (
@@ -309,7 +275,9 @@ export default function MapaPage() {
                       <div>
                         <h4 className="text-lg font-semibold flex items-center gap-2">
                           {selectedMunicipio.nombre}
-                          <Badge className={`${getCategoryColor(selectedMunicipio.categoria)} text-white border-0`}>
+                          <Badge
+                            className={`${getCategoryColorClass(selectedMunicipio.categoria)} text-white border-0`}
+                          >
                             {selectedMunicipio.categoria}
                           </Badge>
                         </h4>
@@ -317,7 +285,7 @@ export default function MapaPage() {
                           Población: {selectedMunicipio.poblacion} habitantes
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Coordenadas: {selectedMunicipio.lat}, {selectedMunicipio.lng}
+                          Coordenadas: {selectedMunicipio.lat.toFixed(4)}, {selectedMunicipio.lng.toFixed(4)}
                         </p>
                       </div>
                     </div>
@@ -354,7 +322,7 @@ export default function MapaPage() {
                         className="object-cover"
                       />
                     </div>
-                    <div className={`w-3 h-3 rounded-full ${getCategoryColor(municipio.categoria)}`}></div>
+                    <div className={`w-3 h-3 rounded-full ${getCategoryColorClass(municipio.categoria)}`}></div>
                     <div>
                       <p className="font-medium">{municipio.nombre}</p>
                       <p className="text-sm text-muted-foreground">{municipio.poblacion} hab.</p>
