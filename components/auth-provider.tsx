@@ -8,11 +8,11 @@ import {
   createUserSession,
   deleteSession,
   getUserById,
+  type UserData,
 } from "@/lib/auth-utils"
-import type { User } from "@/lib/supabase"
 
 interface AuthContextType {
-  user: User | null
+  user: UserData | null
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   register: (
     email: string,
@@ -28,7 +28,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {

@@ -34,19 +34,26 @@ export default function ConfiguracionPage() {
 
     if (preferences) {
       setSettings({
+        notifications: preferences.notifications,
+        privacy: preferences.privacy,
+        preferences: preferences.preferences,
+      })
+    } else {
+      // Set default preferences if none exist
+      setSettings({
         notifications: {
-          email: preferences.notifications_email,
-          push: preferences.notifications_push,
-          sms: preferences.notifications_sms,
+          email: true,
+          push: false,
+          sms: false,
         },
         privacy: {
-          profileVisible: preferences.privacy_profile_visible,
-          activityVisible: preferences.privacy_activity_visible,
+          profileVisible: true,
+          activityVisible: false,
         },
         preferences: {
-          language: preferences.language,
-          theme: preferences.theme,
-          region: preferences.region,
+          language: "es",
+          theme: "system",
+          region: "cauca",
         },
       })
     }
@@ -61,14 +68,9 @@ export default function ConfiguracionPage() {
     if (!user || !settings) return
 
     const success = await updateUserPreferences(user.id, {
-      notifications_email: settings.notifications.email,
-      notifications_push: settings.notifications.push,
-      notifications_sms: settings.notifications.sms,
-      privacy_profile_visible: settings.privacy.profileVisible,
-      privacy_activity_visible: settings.privacy.activityVisible,
-      language: settings.preferences.language,
-      theme: settings.preferences.theme,
-      region: settings.preferences.region,
+      notifications: settings.notifications,
+      privacy: settings.privacy,
+      preferences: settings.preferences,
     })
 
     if (success) {
@@ -306,7 +308,13 @@ export default function ConfiguracionPage() {
                 <Separator />
                 <div>
                   <Label className="text-sm font-medium">Miembro desde</Label>
-                  <p className="text-sm text-muted-foreground">Enero 2023</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(user.createdAt).toLocaleDateString("es-ES", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
                 </div>
               </CardContent>
             </Card>

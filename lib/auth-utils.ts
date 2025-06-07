@@ -1,174 +1,227 @@
-import bcrypt from "bcryptjs"
-import { supabase } from "./supabase"
-import type { User } from "./supabase"
+import connectDB from "./mongodb"
+import User, { type IUser } from "./models/User"
+import UserSession from "./models/UserSession"
+import UserPreferences from "./models/UserPreferences"
 
-export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 10
-  return await bcrypt.hash(password, saltRounds)
+export interface UserData {
+  id: string
+  email: string
+  name: string
+  phone?: string
+  role: "user" | "admin"
+  avatar?: string
+  emailVerified: boolean
+  createdAt: string
+  updatedAt: string
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  return await bcrypt.compare(password, hash)
-}
-
-export async function createUser(email: string, password: string, name: string, phone?: string): Promise<User | null> {
+export async function createUser(
+  email: string,
+  password: string,
+  name: string,
+  phone?: string,
+): Promise<UserData | null> {
   try {
-    const passwordHash = await hashPassword(password)
+    await connectDB()
 
-    const { data, error } = await supabase
-      .from("users")
-      .insert([
-        {
-          email,
-          password_hash: passwordHash,
-          name,
-          phone,
-          role: "user",
-        },
-      ])
-      .select()
-      .single()
-
-    if (error) {
-      console.error("Error creating user:", error)
+    // Check if user already exists
+    const existingUser = await User.findOne({ email })
+    if (existingUser) {
       return null
     }
 
-    // Crear preferencias por defecto
-    await supabase.from("user_preferences").insert([
-      {
-        user_id: data.id,
-        notifications_email: true,
-        privacy_profile_visible: true,
-      },
-    ])
+    // Create new user
+    const user = new User({
+      email,
+      password,
+      name,
+      phone,
+      role: "user",
+    })
 
-    return data
+    await user.save()
+
+    // Create default preferences
+    const preferences = new UserPreferences({
+      userId: user._id,
+      notifications: {
+        email: true,
+        push: false,
+        sms: false,
+      },
+      privacy: {
+        profileVisible: true,
+        activityVisible: false,
+      },
+      preferences: {
+        language: "es",
+        theme: "system",
+        region: "cauca",
+      },
+    })
+
+    await preferences.save()
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
   } catch (error) {
-    console.error("Error in createUser:", error)
+    console.error("Error creating user:", error)
     return null
   }
 }
 
-export async function authenticateUser(email: string, password: string): Promise<User | null> {
+export async function authenticateUser(email: string, password: string): Promise<UserData | null> {
   try {
-    const { data, error } = await supabase.from("users").select("*").eq("email", email).single()
+    await connectDB()
 
-    if (error || !data) {
+    const user = await User.findOne({ email })
+    if (!user) {
       return null
     }
 
-    const isValidPassword = await verifyPassword(password, data.password_hash)
+    const isValidPassword = await user.comparePassword(password)
     if (!isValidPassword) {
       return null
     }
 
-    // Remover password_hash del objeto retornado
-    const { password_hash, ...userWithoutPassword } = data
-    return userWithoutPassword as User
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
   } catch (error) {
-    console.error("Error in authenticateUser:", error)
+    console.error("Error authenticating user:", error)
     return null
   }
 }
 
-export async function getUserById(id: string): Promise<User | null> {
+export async function getUserById(id: string): Promise<UserData | null> {
   try {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, email, name, phone, role, avatar_url, email_verified, created_at, updated_at")
-      .eq("id", id)
-      .single()
+    await connectDB()
 
-    if (error) {
+    const user = await User.findById(id)
+    if (!user) {
       return null
     }
 
-    return data
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
   } catch (error) {
-    console.error("Error in getUserById:", error)
+    console.error("Error getting user by ID:", error)
     return null
   }
 }
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Pick<User, "name" | "phone" | "avatar_url">>,
+  updates: Partial<Pick<UserData, "name" | "phone" | "avatar">>,
 ): Promise<boolean> {
   try {
-    const { error } = await supabase.from("users").update(updates).eq("id", userId)
+    await connectDB()
 
-    return !error
+    const user = await User.findByIdAndUpdate(userId, updates, { new: true })
+    return !!user
   } catch (error) {
-    console.error("Error in updateUserProfile:", error)
+    console.error("Error updating user profile:", error)
     return false
   }
 }
 
 export async function createUserSession(userId: string): Promise<string | null> {
   try {
+    await connectDB()
+
     const sessionToken = crypto.randomUUID()
     const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 7) // 7 días
+    expiresAt.setDate(expiresAt.getDate() + 7) // 7 days
 
-    const { error } = await supabase.from("user_sessions").insert([
-      {
-        user_id: userId,
-        session_token: sessionToken,
-        expires_at: expiresAt.toISOString(),
-      },
-    ])
+    const session = new UserSession({
+      userId,
+      sessionToken,
+      expiresAt,
+    })
 
-    if (error) {
-      return null
-    }
-
+    await session.save()
     return sessionToken
   } catch (error) {
-    console.error("Error in createUserSession:", error)
+    console.error("Error creating user session:", error)
     return null
   }
 }
 
-export async function validateSession(sessionToken: string): Promise<User | null> {
+export async function validateSession(sessionToken: string): Promise<UserData | null> {
   try {
-    const { data, error } = await supabase
-      .from("user_sessions")
-      .select(`
-        user_id,
-        expires_at,
-        users (
-          id, email, name, phone, role, avatar_url, email_verified, created_at, updated_at
-        )
-      `)
-      .eq("session_token", sessionToken)
-      .single()
+    await connectDB()
 
-    if (error || !data) {
+    const session = await UserSession.findOne({
+      sessionToken,
+      expiresAt: { $gt: new Date() },
+    }).populate("userId")
+
+    if (!session || !session.userId) {
       return null
     }
 
-    // Verificar si la sesión ha expirado
-    if (new Date(data.expires_at) < new Date()) {
-      // Eliminar sesión expirada
-      await supabase.from("user_sessions").delete().eq("session_token", sessionToken)
-      return null
-    }
+    const user = session.userId as IUser
 
-    return data.users as User
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      avatar: user.avatar,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+    }
   } catch (error) {
-    console.error("Error in validateSession:", error)
+    console.error("Error validating session:", error)
     return null
   }
 }
 
 export async function deleteSession(sessionToken: string): Promise<boolean> {
   try {
-    const { error } = await supabase.from("user_sessions").delete().eq("session_token", sessionToken)
+    await connectDB()
 
-    return !error
+    await UserSession.deleteOne({ sessionToken })
+    return true
   } catch (error) {
-    console.error("Error in deleteSession:", error)
+    console.error("Error deleting session:", error)
     return false
+  }
+}
+
+export async function cleanupExpiredSessions(): Promise<void> {
+  try {
+    await connectDB()
+    await UserSession.deleteMany({ expiresAt: { $lt: new Date() } })
+  } catch (error) {
+    console.error("Error cleaning up expired sessions:", error)
   }
 }
