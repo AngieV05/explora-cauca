@@ -165,7 +165,7 @@ export const municipiosData: Municipio[] = [
     descripcion: "Pueblo guambiano famoso por su mercado indígena y cultura ancestral.",
     descripcionExtendida:
       "Silvia es un pintoresco municipio ubicado en la cordillera Central, conocido principalmente por ser el hogar del pueblo indígena Guambiano (Misak). Este lugar es famoso por su colorido mercado indígena que se realiza todos los martes, donde se puede apreciar la rica cultura ancestral, artesanías tradicionales y productos agrícolas de la región. Los Guambianos conservan sus tradiciones, idioma (nam trik) y vestimenta tradicional.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/festival-cultural-cauca.jpeg",
     categoria: "cultura",
     rating: 4.7,
     tiempo: "1 día",
@@ -261,7 +261,7 @@ export const municipiosData: Municipio[] = [
     descripcion: "Hogar del Parque Nacional Natural Puracé con volcanes activos y aguas termales.",
     descripcionExtendida:
       "Puracé es un municipio ubicado en el macizo colombiano, hogar del Parque Nacional Natural Puracé. Este territorio alberga la cadena volcánica de Los Coconucos, con el volcán Puracé como el más prominente. La región es conocida por sus aguas termales, páramos únicos, lagunas de origen glaciar y una biodiversidad excepcional. Es un destino ideal para el ecoturismo y el turismo de aventura.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
     categoria: "naturaleza",
     rating: 4.8,
     tiempo: "2-3 días",
@@ -351,7 +351,7 @@ export const municipiosData: Municipio[] = [
       },
     ],
     recomendaciones: [
-      "Lleva ropa muy abrigada y impermeable",
+      "Lleva ropa muy abrigada e impermeable",
       "Contrata guía local para ascenso al volcán",
       "Aclimátate gradualmente a la altura",
       "Respeta las normas del parque nacional",
@@ -364,7 +364,7 @@ export const municipiosData: Municipio[] = [
     descripcion: "Famoso por sus termales naturales y paisajes de páramo.",
     descripcionExtendida:
       "Coconuco es un pequeño municipio ubicado en las estribaciones del macizo colombiano, famoso mundialmente por sus aguas termales naturales. Estas aguas, que emergen del subsuelo a temperaturas entre 60 y 85°C, tienen propiedades medicinales reconocidas. El municipio está rodeado de paisajes de páramo, con una biodiversidad única y vistas espectaculares de los volcanes circundantes.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
     categoria: "naturaleza",
     rating: 4.6,
     tiempo: "1 día",
@@ -455,7 +455,7 @@ export const municipiosData: Municipio[] = [
     descripcion: "Puerta de entrada al Parque Arqueológico de Tierradentro.",
     descripcionExtendida:
       "Inzá es un municipio ubicado en la cordillera Central, conocido principalmente por ser la puerta de entrada al Parque Arqueológico Nacional de Tierradentro, declarado Patrimonio de la Humanidad por la UNESCO. Este territorio alberga la cultura precolombina más importante del suroccidente colombiano, con hipogeos (tumbas subterráneas) únicos en el mundo, estatuaria y vestigios de una civilización milenaria.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&h=600&fit=crop",
     categoria: "cultura",
     rating: 4.5,
     tiempo: "2 días",
@@ -551,7 +551,7 @@ export const municipiosData: Municipio[] = [
     descripcion: "Puerto en la costa pacífica, cultura afrocolombiana y biodiversidad marina.",
     descripcionExtendida:
       "Guapi es un municipio costero ubicado en el litoral Pacífico caucano, caracterizado por su rica cultura afrocolombiana, biodiversidad marina excepcional y tradiciones musicales únicas. Este puerto fluvial es el corazón de la cultura del Pacífico, donde se conservan tradiciones ancestrales, música tradicional como el currulao, y una gastronomía basada en productos del mar y la selva tropical.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop",
     categoria: "costa",
     rating: 4.4,
     tiempo: "2-3 días",

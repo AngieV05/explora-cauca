@@ -8,16 +8,73 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { MapPin, Search, Filter, Navigation, Layers } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 // Datos de municipios con coordenadas aproximadas
 const municipiosConCoordenadas = [
-  { nombre: "Popayán", slug: "popayan", lat: 2.4448, lng: -76.6147, categoria: "ciudad", poblacion: "280,000" },
-  { nombre: "Silvia", slug: "silvia", lat: 2.6167, lng: -76.3833, categoria: "cultura", poblacion: "35,000" },
-  { nombre: "Puracé", slug: "purace", lat: 2.3167, lng: -76.4, categoria: "naturaleza", poblacion: "18,000" },
-  { nombre: "Coconuco", slug: "coconuco", lat: 2.3333, lng: -76.3667, categoria: "naturaleza", poblacion: "12,000" },
-  { nombre: "Inzá", slug: "inza", lat: 2.55, lng: -76.0667, categoria: "cultura", poblacion: "28,000" },
-  { nombre: "Guapi", slug: "guapi", lat: 2.5667, lng: -77.8833, categoria: "costa", poblacion: "30,000" },
-  { nombre: "Timbío", slug: "timbio", lat: 2.35, lng: -76.6833, categoria: "ciudad", poblacion: "35,000" },
+  {
+    nombre: "Popayán",
+    slug: "popayan",
+    lat: 2.4448,
+    lng: -76.6147,
+    categoria: "ciudad",
+    poblacion: "280,000",
+    imagen: "/images/popayan-centro-historico.png",
+  },
+  {
+    nombre: "Silvia",
+    slug: "silvia",
+    lat: 2.6167,
+    lng: -76.3833,
+    categoria: "cultura",
+    poblacion: "35,000",
+    imagen: "/images/festival-cultural-cauca.jpeg",
+  },
+  {
+    nombre: "Puracé",
+    slug: "purace",
+    lat: 2.3167,
+    lng: -76.4,
+    categoria: "naturaleza",
+    poblacion: "18,000",
+    imagen: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+  },
+  {
+    nombre: "Coconuco",
+    slug: "coconuco",
+    lat: 2.3333,
+    lng: -76.3667,
+    categoria: "naturaleza",
+    poblacion: "12,000",
+    imagen: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
+  },
+  {
+    nombre: "Inzá",
+    slug: "inza",
+    lat: 2.55,
+    lng: -76.0667,
+    categoria: "cultura",
+    poblacion: "28,000",
+    imagen: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=800&h=600&fit=crop",
+  },
+  {
+    nombre: "Guapi",
+    slug: "guapi",
+    lat: 2.5667,
+    lng: -77.8833,
+    categoria: "costa",
+    poblacion: "30,000",
+    imagen: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop",
+  },
+  {
+    nombre: "Timbío",
+    slug: "timbio",
+    lat: 2.35,
+    lng: -76.6833,
+    categoria: "ciudad",
+    poblacion: "35,000",
+    imagen: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop",
+  },
   {
     nombre: "Santander de Quilichao",
     slug: "santander-de-quilichao",
@@ -25,9 +82,26 @@ const municipiosConCoordenadas = [
     lng: -76.4833,
     categoria: "ciudad",
     poblacion: "95,000",
+    imagen: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
   },
-  { nombre: "Caldono", slug: "caldono", lat: 2.7833, lng: -76.5333, categoria: "cultura", poblacion: "38,000" },
-  { nombre: "Toribío", slug: "toribio", lat: 3.0167, lng: -76.05, categoria: "cultura", poblacion: "32,000" },
+  {
+    nombre: "Caldono",
+    slug: "caldono",
+    lat: 2.7833,
+    lng: -76.5333,
+    categoria: "cultura",
+    poblacion: "38,000",
+    imagen: "/images/festival-cultural-cauca.jpeg",
+  },
+  {
+    nombre: "Toribío",
+    slug: "toribio",
+    lat: 3.0167,
+    lng: -76.05,
+    categoria: "cultura",
+    poblacion: "32,000",
+    imagen: "/images/festival-cultural-cauca.jpeg",
+  },
 ]
 
 export default function MapaPage() {
@@ -69,12 +143,31 @@ export default function MapaPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-blue-50 dark:from-green-950/10 dark:to-blue-950/10">
-      <div className="container py-8">
-        <div className="flex items-center gap-2 mb-8">
-          <MapPin className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Mapa Interactivo del Cauca</h1>
+      {/* Header con imagen de fondo */}
+      <section className="relative h-64 overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/represa-cauca-paisaje.jpeg"
+            alt="Paisajes del Cauca desde el aire"
+            fill
+            className="object-cover object-center"
+          />
         </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/60" />
+        <div className="relative z-20 flex h-full items-center">
+          <div className="container">
+            <div className="max-w-3xl text-white">
+              <div className="flex items-center gap-2 mb-4">
+                <MapPin className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Mapa Interactivo del Cauca</h1>
+              </div>
+              <p className="text-lg opacity-90">Explora los 42 municipios desde una perspectiva geográfica</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <div className="container py-8">
         <div className="grid gap-6 lg:grid-cols-4">
           {/* Panel de control */}
           <Card className="lg:col-span-1">
@@ -195,19 +288,29 @@ export default function MapaPage() {
               {selectedMunicipio && (
                 <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg border">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-lg font-semibold flex items-center gap-2">
-                        {selectedMunicipio.nombre}
-                        <Badge className={`${getCategoryColor(selectedMunicipio.categoria)} text-white border-0`}>
-                          {selectedMunicipio.categoria}
-                        </Badge>
-                      </h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Población: {selectedMunicipio.poblacion} habitantes
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Coordenadas: {selectedMunicipio.lat}, {selectedMunicipio.lng}
-                      </p>
+                    <div className="flex gap-4">
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                        <Image
+                          src={selectedMunicipio.imagen || "/placeholder.svg"}
+                          alt={selectedMunicipio.nombre}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold flex items-center gap-2">
+                          {selectedMunicipio.nombre}
+                          <Badge className={`${getCategoryColor(selectedMunicipio.categoria)} text-white border-0`}>
+                            {selectedMunicipio.categoria}
+                          </Badge>
+                        </h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Población: {selectedMunicipio.poblacion} habitantes
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Coordenadas: {selectedMunicipio.lat}, {selectedMunicipio.lng}
+                        </p>
+                      </div>
                     </div>
                     <Button asChild size="sm">
                       <Link href={`/turismo/${selectedMunicipio.slug}`}>Ver Detalles</Link>
@@ -234,6 +337,14 @@ export default function MapaPage() {
                   onClick={() => setSelectedMunicipio(municipio)}
                 >
                   <div className="flex items-center gap-3">
+                    <div className="relative w-10 h-10 rounded overflow-hidden">
+                      <Image
+                        src={municipio.imagen || "/placeholder.svg"}
+                        alt={municipio.nombre}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                     <div className={`w-3 h-3 rounded-full ${getCategoryColor(municipio.categoria)}`}></div>
                     <div>
                       <p className="font-medium">{municipio.nombre}</p>
