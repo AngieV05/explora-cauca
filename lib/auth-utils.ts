@@ -1,218 +1,276 @@
-import connectDB from "./mongodb"
+import bcrypt from "bcryptjs"
+import connectDB, { isMongoDBAvailable } from "./mongodb"
 import User from "./models/User"
 import UserSession from "./models/UserSession"
-import UserPreferences from "./models/UserPreferences"
 
-export interface UserData {
+// Datos mock para cuando no hay base de datos
+const mockUsers = [
+  {
+    id: "1",
+    email: "admin@example.com",
+    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
+    name: "Administrador",
+    role: "admin" as const,
+    phone: "+57 300 123 4567",
+    avatar: "/placeholder.svg?height=40&width=40",
+    emailVerified: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "2",
+    email: "juan@example.com",
+    password: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
+    name: "Juan Pérez",
+    role: "user" as const,
+    phone: "+57 300 987 6543",
+    avatar: "/placeholder.svg?height=40&width=40",
+    emailVerified: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+]
+
+export interface AuthUser {
   id: string
   email: string
   name: string
-  phone?: string
   role: "user" | "admin"
+  phone?: string
   avatar?: string
   emailVerified: boolean
-  createdAt: string
-  updatedAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
-export async function createUser(
-  email: string,
-  password: string,
-  name: string,
-  phone?: string,
-): Promise<UserData | null> {
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10)
+}
+
+export async function comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword)
+}
+
+export async function createUser(userData: {
+  email: string
+  password: string
+  name: string
+  phone?: string
+}): Promise<AuthUser> {
   try {
-    await connectDB()
+    if (isMongoDBAvailable()) {
+      await connectDB()
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email })
-    if (existingUser) {
-      return null
-    }
+      const existingUser = await User.findOne({ email: userData.email })
+      if (existingUser) {
+        throw new Error("El usuario ya existe")
+      }
 
-    // Create new user
-    const user = new User({
-      email,
-      password,
-      name,
-      phone,
-      role: "user",
-    })
+      const hashedPassword = await hashPassword(userData.password)
+      const user = new User({
+        ...userData,
+        password: hashedPassword,
+        role: "user",
+        emailVerified: false,
+      })
 
-    await user.save()
+      await user.save()
+      return {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }
+    } else {
+      // Modo mock para Vercel preview
+      const existingUser = mockUsers.find((u) => u.email === userData.email)
+      if (existingUser) {
+        throw new Error("El usuario ya existe")
+      }
 
-    // Create default preferences
-    const preferences = new UserPreferences({
-      userId: user._id,
-      notifications: {
-        email: true,
-        push: false,
-        sms: false,
-      },
-      privacy: {
-        profileVisible: true,
-        activityVisible: false,
-      },
-      preferences: {
-        language: "es",
-        theme: "system",
-        region: "cauca",
-      },
-    })
+      const newUser = {
+        id: Date.now().toString(),
+        email: userData.email,
+        password: await hashPassword(userData.password),
+        name: userData.name,
+        role: "user" as const,
+        phone: userData.phone,
+        avatar: "/placeholder.svg?height=40&width=40",
+        emailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
 
-    await preferences.save()
-
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      role: user.role,
-      avatar: user.avatar,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
+      mockUsers.push(newUser)
+      return newUser
     }
   } catch (error) {
-    console.error("Error creating user:", error)
+    console.error("Error creando usuario:", error)
+    throw error
+  }
+}
+
+export async function authenticateUser(email: string, password: string): Promise<AuthUser | null> {
+  try {
+    if (isMongoDBAvailable()) {
+      await connectDB()
+
+      const user = await User.findOne({ email })
+      if (!user) {
+        return null
+      }
+
+      const isValidPassword = await comparePassword(password, user.password)
+      if (!isValidPassword) {
+        return null
+      }
+
+      return {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }
+    } else {
+      // Modo mock para Vercel preview
+      const user = mockUsers.find((u) => u.email === email)
+      if (!user) {
+        return null
+      }
+
+      const isValidPassword = await comparePassword(password, user.password)
+      if (!isValidPassword) {
+        return null
+      }
+
+      return user
+    }
+  } catch (error) {
+    console.error("Error autenticando usuario:", error)
     return null
   }
 }
 
-export async function authenticateUser(email: string, password: string): Promise<UserData | null> {
+export async function createSession(userId: string): Promise<string> {
+  const sessionToken = generateSessionToken()
+
   try {
-    await connectDB()
+    if (isMongoDBAvailable()) {
+      await connectDB()
 
-    const user = await User.findOne({ email })
-    if (!user) {
-      return null
+      const session = new UserSession({
+        userId,
+        sessionToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
+      })
+
+      await session.save()
     }
+    // En modo mock, solo devolvemos el token sin guardarlo
 
-    const isValidPassword = await user.comparePassword(password)
-    if (!isValidPassword) {
-      return null
-    }
-
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      role: user.role,
-      avatar: user.avatar,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    }
-  } catch (error) {
-    console.error("Error authenticating user:", error)
-    return null
-  }
-}
-
-export async function getUserById(id: string): Promise<UserData | null> {
-  try {
-    await connectDB()
-
-    const user = await User.findById(id)
-    if (!user) {
-      return null
-    }
-
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      role: user.role,
-      avatar: user.avatar,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
-    }
-  } catch (error) {
-    console.error("Error getting user by ID:", error)
-    return null
-  }
-}
-
-export async function updateUserProfile(
-  userId: string,
-  updates: Partial<Pick<UserData, "name" | "phone" | "avatar">>,
-): Promise<boolean> {
-  try {
-    await connectDB()
-
-    const user = await User.findByIdAndUpdate(userId, updates, { new: true })
-    return !!user
-  } catch (error) {
-    console.error("Error updating user profile:", error)
-    return false
-  }
-}
-
-export async function createUserSession(userId: string): Promise<string | null> {
-  try {
-    await connectDB()
-
-    const sessionToken = crypto.randomUUID()
-    const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 7) // 7 days
-
-    const session = new UserSession({
-      userId,
-      sessionToken,
-      expiresAt,
-    })
-
-    await session.save()
     return sessionToken
   } catch (error) {
-    console.error("Error creating user session:", error)
+    console.error("Error creando sesión:", error)
+    return sessionToken // Devolver token aunque falle la BD
+  }
+}
+
+export async function validateSession(sessionToken: string): Promise<AuthUser | null> {
+  try {
+    if (isMongoDBAvailable()) {
+      await connectDB()
+
+      const session = await UserSession.findOne({
+        sessionToken,
+        expiresAt: { $gt: new Date() },
+      }).populate("userId")
+
+      if (!session || !session.userId) {
+        return null
+      }
+
+      const user = session.userId as any
+      return {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }
+    } else {
+      // En modo mock, validar con el primer usuario admin
+      return mockUsers[0]
+    }
+  } catch (error) {
+    console.error("Error validando sesión:", error)
     return null
   }
 }
 
-export async function validateSession(sessionToken: string): Promise<UserData | null> {
+export async function deleteSession(sessionToken: string): Promise<void> {
   try {
-    await connectDB()
-
-    const session = await UserSession.findOne({
-      sessionToken,
-      expiresAt: { $gt: new Date() },
-    }).populate("userId")
-
-    if (!session || !session.userId) {
-      return null
+    if (isMongoDBAvailable()) {
+      await connectDB()
+      await UserSession.deleteOne({ sessionToken })
     }
+    // En modo mock no hacemos nada
+  } catch (error) {
+    console.error("Error eliminando sesión:", error)
+  }
+}
 
-    const user = session.userId as any
+export async function updateUser(userId: string, updates: Partial<AuthUser>): Promise<AuthUser | null> {
+  try {
+    if (isMongoDBAvailable()) {
+      await connectDB()
 
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      role: user.role,
-      avatar: user.avatar,
-      emailVerified: user.emailVerified,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
+      const user = await User.findByIdAndUpdate(userId, { ...updates, updatedAt: new Date() }, { new: true })
+
+      if (!user) {
+        return null
+      }
+
+      return {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        emailVerified: user.emailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }
+    } else {
+      // Modo mock
+      const userIndex = mockUsers.findIndex((u) => u.id === userId)
+      if (userIndex === -1) {
+        return null
+      }
+
+      mockUsers[userIndex] = { ...mockUsers[userIndex], ...updates, updatedAt: new Date() }
+      return mockUsers[userIndex]
     }
   } catch (error) {
-    console.error("Error validating session:", error)
+    console.error("Error actualizando usuario:", error)
     return null
   }
 }
 
-export async function deleteSession(sessionToken: string): Promise<boolean> {
-  try {
-    await connectDB()
-
-    await UserSession.deleteOne({ sessionToken })
-    return true
-  } catch (error) {
-    console.error("Error deleting session:", error)
-    return false
-  }
+function generateSessionToken(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
