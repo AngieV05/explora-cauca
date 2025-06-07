@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Camera, BarChart3, Users, Palmtree, Mountain, Church } from "lucide-react"
+import { MapPin, Camera, BarChart3, Users, Palmtree, Mountain } from "lucide-react"
 
 export default function Home() {
   return (
@@ -11,8 +11,8 @@ export default function Home() {
       <section className="relative h-screen overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/explora-cauca-hero.png"
-            alt="Explora Cauca - Paisaje Cultural"
+            src="/images/festival-cultural-cauca.jpeg"
+            alt="Festival Cultural del Cauca - Tradiciones Ancestrales"
             fill
             className="object-cover object-center"
             priority
@@ -34,7 +34,7 @@ export default function Home() {
               </h1>
               <p className="mt-6 text-xl text-white/90 sm:text-2xl">
                 Descubre la magia del departamento más diverso de Colombia. Desde sus montañas sagradas hasta su rica
-                cultura ancestral.
+                cultura ancestral y tradiciones milenarias.
               </p>
               <div className="mt-10 flex flex-col gap-4 sm:flex-row">
                 <Button
@@ -98,9 +98,13 @@ export default function Home() {
               </CardHeader>
               <CardContent className="text-center">
                 <div className="aspect-video overflow-hidden rounded-lg mb-4">
-                  <div className="h-full w-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                    <Church className="h-16 w-16 text-white/80" />
-                  </div>
+                  <Image
+                    src="/images/represa-cauca-paisaje.jpeg"
+                    alt="Paisajes naturales del Cauca"
+                    width={400}
+                    height={225}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Desde el Parque Nacional Natural Puracé hasta las calles coloniales de Popayán, explora cada rincón de

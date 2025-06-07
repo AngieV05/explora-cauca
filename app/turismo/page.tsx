@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -5,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Star, Clock, Users, Mountain, Church, Waves, TreePine, Search } from "lucide-react"
+import { MapPin, Star, Clock, Users, Mountain, Church, Waves, TreePine, Search, X } from "lucide-react"
 
 // Lista completa de los 42 municipios del Cauca con slugs corregidos
 const municipiosCauca = [
@@ -28,7 +31,7 @@ const municipiosCauca = [
     nombre: "Silvia",
     slug: "silvia",
     descripcion: "Pueblo guambiano famoso por su mercado indígena y cultura ancestral.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/festival-cultural-cauca.jpeg",
     categoria: "cultura",
     rating: 4.7,
     tiempo: "1 día",
@@ -42,7 +45,7 @@ const municipiosCauca = [
     nombre: "Puracé",
     slug: "purace",
     descripcion: "Hogar del Parque Nacional Natural Puracé con volcanes activos y aguas termales.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/represa-cauca-paisaje.jpeg",
     categoria: "naturaleza",
     rating: 4.8,
     tiempo: "2-3 días",
@@ -56,7 +59,7 @@ const municipiosCauca = [
     nombre: "Coconuco",
     slug: "coconuco",
     descripcion: "Famoso por sus termales naturales y paisajes de páramo.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/represa-cauca-paisaje.jpeg",
     categoria: "naturaleza",
     rating: 4.6,
     tiempo: "1 día",
@@ -70,7 +73,7 @@ const municipiosCauca = [
     nombre: "Inzá",
     slug: "inza",
     descripcion: "Puerta de entrada al Parque Arqueológico de Tierradentro.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/festival-cultural-cauca.jpeg",
     categoria: "cultura",
     rating: 4.5,
     tiempo: "2 días",
@@ -126,7 +129,7 @@ const municipiosCauca = [
     nombre: "Caldono",
     slug: "caldono",
     descripcion: "Municipio con rica tradición indígena nasa y paisajes montañosos.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/festival-cultural-cauca.jpeg",
     categoria: "cultura",
     rating: 4.1,
     tiempo: "1 día",
@@ -140,7 +143,7 @@ const municipiosCauca = [
     nombre: "Toribío",
     slug: "toribio",
     descripcion: "Territorio indígena nasa con hermosos paisajes andinos.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/festival-cultural-cauca.jpeg",
     categoria: "cultura",
     rating: 4.0,
     tiempo: "1-2 días",
@@ -154,7 +157,7 @@ const municipiosCauca = [
     nombre: "Cajibío",
     slug: "cajibio",
     descripcion: "Municipio agrícola con tradiciones campesinas y paisajes rurales.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/represa-cauca-paisaje.jpeg",
     categoria: "rural",
     rating: 3.9,
     tiempo: "1 día",
@@ -168,7 +171,7 @@ const municipiosCauca = [
     nombre: "Piendamó",
     slug: "piendamo",
     descripcion: "Conocido por su producción agrícola y cercanía a Popayán.",
-    imagen: "/images/explora-cauca-hero.png",
+    imagen: "/images/represa-cauca-paisaje.jpeg",
     categoria: "rural",
     rating: 3.8,
     tiempo: "1 día",
@@ -634,14 +637,43 @@ const getCategoryColor = (categoria: string) => {
 }
 
 export default function TurismoPage() {
+  const [busqueda, setBusqueda] = useState("")
+  const [categoriaActiva, setCategoriaActiva] = useState("todos")
+
+  // Función para filtrar municipios
+  const filtrarMunicipios = (categoria: string) => {
+    let municipiosFiltrados = municipiosCauca
+
+    // Filtrar por búsqueda
+    if (busqueda.trim() !== "") {
+      municipiosFiltrados = municipiosFiltrados.filter(
+        (municipio) =>
+          municipio.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+          municipio.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
+          municipio.categoria.toLowerCase().includes(busqueda.toLowerCase()),
+      )
+    }
+
+    // Filtrar por categoría
+    if (categoria !== "todos") {
+      municipiosFiltrados = municipiosFiltrados.filter((municipio) => municipio.categoria === categoria)
+    }
+
+    return municipiosFiltrados
+  }
+
+  const limpiarBusqueda = () => {
+    setBusqueda("")
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-blue-50 to-orange-50 dark:from-green-950/10 dark:via-blue-950/10 dark:to-orange-950/10">
       {/* Header con imagen de fondo */}
       <section className="relative h-96 overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/explora-cauca-hero.png"
-            alt="Paisajes del Cauca"
+            src="/images/festival-cultural-cauca.jpeg"
+            alt="Festival Cultural del Cauca - Tradiciones y Paisajes"
             fill
             className="object-cover object-center"
           />
@@ -663,20 +695,41 @@ export default function TurismoPage() {
       </section>
 
       <div className="container py-12">
-        {/* Buscador */}
+        {/* Buscador mejorado */}
         <div className="mb-8">
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar municipio..." className="pl-10" />
+            <Input
+              placeholder="Buscar municipio, categoría o descripción..."
+              className="pl-10 pr-10"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+            {busqueda && (
+              <button
+                onClick={limpiarBusqueda}
+                className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
+          {busqueda && (
+            <div className="text-center mt-2 text-sm text-muted-foreground">
+              {filtrarMunicipios(categoriaActiva).length} resultado(s) para "{busqueda}"
+            </div>
+          )}
         </div>
 
         {/* Filtros y navegación */}
-        <Tabs defaultValue="todos" className="w-full">
+        <Tabs value={categoriaActiva} onValueChange={setCategoriaActiva} className="w-full">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
             <div className="mb-4 lg:mb-0">
               <h2 className="text-2xl font-bold">Explora por Categoría</h2>
-              <p className="text-muted-foreground">42 municipios únicos esperan por ti</p>
+              <p className="text-muted-foreground">
+                {filtrarMunicipios(categoriaActiva).length} de 42 municipios
+                {busqueda && ` que coinciden con "${busqueda}"`}
+              </p>
             </div>
             <TabsList className="grid w-full max-w-lg grid-cols-6">
               <TabsTrigger value="todos" className="text-xs">
@@ -700,26 +753,88 @@ export default function TurismoPage() {
             </TabsList>
           </div>
 
-          {/* Destinos destacados */}
-          <div className="mb-12">
-            <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-500" />
-              Destinos Destacados
-            </h3>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {municipiosCauca
-                .filter((municipio) => municipio.destacado)
-                .map((municipio) => (
+          {/* Destinos destacados - solo mostrar si no hay búsqueda activa */}
+          {!busqueda && (
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <Star className="h-5 w-5 text-yellow-500" />
+                Destinos Destacados
+              </h3>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filtrarMunicipios(categoriaActiva)
+                  .filter((municipio) => municipio.destacado)
+                  .map((municipio) => (
+                    <Card
+                      key={municipio.id}
+                      className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm"
+                    >
+                      <div className="relative aspect-video overflow-hidden">
+                        <Image
+                          src={municipio.imagen || "/placeholder.svg"}
+                          alt={municipio.nombre}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        <div className="absolute top-4 left-4">
+                          <Badge className={`${getCategoryColor(municipio.categoria)} text-white border-0`}>
+                            {getCategoryIcon(municipio.categoria)}
+                            <span className="ml-1 capitalize">{municipio.categoria}</span>
+                          </Badge>
+                        </div>
+                        <div className="absolute top-4 right-4">
+                          <Badge variant="secondary" className="bg-black/50 text-white border-0">
+                            <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
+                            {municipio.rating}
+                          </Badge>
+                        </div>
+                      </div>
+                      <CardHeader>
+                        <CardTitle className="flex items-start justify-between">
+                          <span>{municipio.nombre}</span>
+                        </CardTitle>
+                        <CardDescription>{municipio.descripcion}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {municipio.tiempo}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            {municipio.altitud}
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter>
+                        <Button
+                          asChild
+                          className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                        >
+                          <Link href={`/turismo/${municipio.slug}`}>Explorar {municipio.nombre}</Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Todos los municipios */}
+          <TabsContent value="todos" className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtrarMunicipios("todos").length > 0 ? (
+                filtrarMunicipios("todos").map((municipio) => (
                   <Card
                     key={municipio.id}
-                    className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm"
+                    className="group overflow-hidden hover:shadow-lg transition-all duration-300"
                   >
                     <div className="relative aspect-video overflow-hidden">
                       <Image
                         src={municipio.imagen || "/placeholder.svg"}
                         alt={municipio.nombre}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                       <div className="absolute top-4 left-4">
                         <Badge className={`${getCategoryColor(municipio.categoria)} text-white border-0`}>
@@ -727,80 +842,36 @@ export default function TurismoPage() {
                           <span className="ml-1 capitalize">{municipio.categoria}</span>
                         </Badge>
                       </div>
-                      <div className="absolute top-4 right-4">
-                        <Badge variant="secondary" className="bg-black/50 text-white border-0">
-                          <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
-                          {municipio.rating}
-                        </Badge>
-                      </div>
                     </div>
-                    <CardHeader>
-                      <CardTitle className="flex items-start justify-between">
-                        <span>{municipio.nombre}</span>
-                      </CardTitle>
-                      <CardDescription>{municipio.descripcion}</CardDescription>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">{municipio.nombre}</CardTitle>
+                      <CardDescription className="text-sm line-clamp-2">{municipio.descripcion}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {municipio.tiempo}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {municipio.altitud}
-                        </div>
+                    <CardContent className="pt-0">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{municipio.poblacion} hab.</span>
+                        <span>{municipio.altitud}</span>
                       </div>
                     </CardContent>
-                    <CardFooter>
-                      <Button
-                        asChild
-                        className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
-                      >
-                        <Link href={`/turismo/${municipio.slug}`}>Explorar {municipio.nombre}</Link>
+                    <CardFooter className="pt-2">
+                      <Button asChild className="w-full" variant="outline" size="sm">
+                        <Link href={`/turismo/${municipio.slug}`}>Ver Detalles</Link>
                       </Button>
                     </CardFooter>
                   </Card>
-                ))}
-            </div>
-          </div>
-
-          {/* Todos los municipios */}
-          <TabsContent value="todos" className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {municipiosCauca.map((municipio) => (
-                <Card key={municipio.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300">
-                  <div className="relative aspect-video overflow-hidden">
-                    <Image
-                      src={municipio.imagen || "/placeholder.svg"}
-                      alt={municipio.nombre}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <Badge className={`${getCategoryColor(municipio.categoria)} text-white border-0`}>
-                        {getCategoryIcon(municipio.categoria)}
-                        <span className="ml-1 capitalize">{municipio.categoria}</span>
-                      </Badge>
-                    </div>
-                  </div>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg">{municipio.nombre}</CardTitle>
-                    <CardDescription className="text-sm line-clamp-2">{municipio.descripcion}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{municipio.poblacion} hab.</span>
-                      <span>{municipio.altitud}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-2">
-                    <Button asChild className="w-full" variant="outline" size="sm">
-                      <Link href={`/turismo/${municipio.slug}`}>Ver Detalles</Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No se encontraron municipios</h3>
+                  <p className="text-muted-foreground mb-4">
+                    No hay municipios que coincidan con tu búsqueda "{busqueda}"
+                  </p>
+                  <Button onClick={limpiarBusqueda} variant="outline">
+                    Limpiar búsqueda
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -808,9 +879,8 @@ export default function TurismoPage() {
           {["naturaleza", "cultura", "ciudad", "costa", "rural"].map((categoria) => (
             <TabsContent key={categoria} value={categoria} className="space-y-6">
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {municipiosCauca
-                  .filter((municipio) => municipio.categoria === categoria)
-                  .map((municipio) => (
+                {filtrarMunicipios(categoria).length > 0 ? (
+                  filtrarMunicipios(categoria).map((municipio) => (
                     <Card
                       key={municipio.id}
                       className="group overflow-hidden hover:shadow-lg transition-all duration-300"
@@ -839,7 +909,23 @@ export default function TurismoPage() {
                         </Button>
                       </CardFooter>
                     </Card>
-                  ))}
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-12">
+                    <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No se encontraron municipios</h3>
+                    <p className="text-muted-foreground mb-4">
+                      {busqueda
+                        ? `No hay municipios de ${categoria} que coincidan con "${busqueda}"`
+                        : `No hay municipios en la categoría ${categoria}`}
+                    </p>
+                    {busqueda && (
+                      <Button onClick={limpiarBusqueda} variant="outline">
+                        Limpiar búsqueda
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
             </TabsContent>
           ))}
