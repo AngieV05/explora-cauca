@@ -633,6 +633,95 @@ export const municipiosData: Municipio[] = [
       "Respeta las tradiciones afrocolombianas",
     ],
   },
+  {
+    id: 13,
+    nombre: "Morales",
+    slug: "morales",
+    descripcion: "Municipio del norte del Cauca con importante infraestructura hidroeléctrica y tradición ganadera.",
+    descripcionExtendida:
+      "Morales es un municipio estratégico del norte del Cauca, conocido por su importante infraestructura hidroeléctrica que contribuye significativamente al desarrollo energético de la región. Ubicado en una zona de colinas y valles, combina la tradición ganadera y agrícola con proyectos de desarrollo moderno. Sus paisajes incluyen embalses, represas y extensas áreas rurales que muestran la armonía entre el progreso tecnológico y la vida campesina tradicional.",
+    imagen: "/images/morales-represa.jpeg",
+    categoria: "rural",
+    rating: 3.7,
+    tiempo: "1 día",
+    dificultad: "Fácil",
+    destacado: false,
+    poblacion: "28,000",
+    altitud: "1,100 msnm",
+    fundacion: "1967",
+    clima: "Cálido seco",
+    temperatura: "22-28°C",
+    atracciones: [
+      {
+        nombre: "Represa Hidroeléctrica",
+        descripcion: "Importante infraestructura energética con embalse y central hidroeléctrica",
+        horario: "Visitas programadas",
+        precio: "Consultar",
+        tipo: "industrial",
+      },
+      {
+        nombre: "Mirador del Embalse",
+        descripcion: "Vista panorámica del embalse y la infraestructura hidroeléctrica",
+        horario: "24 horas",
+        precio: "Gratis",
+        tipo: "naturaleza",
+      },
+      {
+        nombre: "Fincas Ganaderas",
+        descripcion: "Recorridos por fincas tradicionales de la región",
+        horario: "8:00 AM - 5:00 PM",
+        precio: "$20,000 COP",
+        tipo: "rural",
+      },
+    ],
+    gastronomia: ["Sancocho de gallina", "Carne asada", "Yuca frita", "Arepa de maíz", "Chicharrón", "Mazamorra"],
+    eventos: [
+      {
+        nombre: "Feria Ganadera",
+        fecha: "Octubre",
+        descripcion: "Exposición y comercialización de ganado bovino",
+      },
+      {
+        nombre: "Festival del Campesino",
+        fecha: "Junio",
+        descripcion: "Celebración de las tradiciones rurales",
+      },
+    ],
+    comoLlegar: [
+      {
+        desde: "Santander de Quilichao",
+        medio: "Bus",
+        tiempo: "45 minutos",
+        descripcion: "Buses frecuentes desde la cabecera municipal",
+      },
+      {
+        desde: "Popayán",
+        medio: "Bus",
+        tiempo: "2 horas",
+        descripcion: "Ruta por Santander de Quilichao",
+      },
+    ],
+    alojamiento: [
+      {
+        tipo: "Finca Turística",
+        nombre: "Hacienda El Embalse",
+        precio: "$60,000 - $90,000 COP",
+        descripcion: "Alojamiento rural con vista al embalse",
+      },
+      {
+        tipo: "Hospedaje Familiar",
+        nombre: "Casa Campesina",
+        precio: "$35,000 - $50,000 COP",
+        descripcion: "Experiencia de turismo rural comunitario",
+      },
+    ],
+    recomendaciones: [
+      "Visita el mirador del embalse para las mejores fotos",
+      "Coordina visitas a la represa con anticipación",
+      "Prueba la gastronomía local en las fincas",
+      "Lleva protector solar por el clima cálido",
+    ],
+  },
 ]
 
 export function getMunicipioBySlug(slug: string): Municipio | undefined {

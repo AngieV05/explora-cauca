@@ -102,6 +102,15 @@ const municipiosConCoordenadas = [
     poblacion: "32,000",
     imagen: "/images/festival-cultural-cauca.jpeg",
   },
+  {
+    nombre: "Morales",
+    slug: "morales",
+    lat: 3.1167,
+    lng: -76.6333,
+    categoria: "rural",
+    poblacion: "28,000",
+    imagen: "/images/morales-represa.jpeg",
+  },
 ]
 
 export default function MapaPage() {
