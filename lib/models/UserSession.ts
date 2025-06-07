@@ -1,11 +1,11 @@
-import mongoose, { type Document, Schema } from "mongoose"
+import mongoose, { Schema, type Document } from "mongoose"
 
 export interface IUserSession extends Document {
-  _id: string
   userId: mongoose.Types.ObjectId
   sessionToken: string
   expiresAt: Date
   createdAt: Date
+  updatedAt: Date
 }
 
 const UserSessionSchema = new Schema<IUserSession>(
@@ -23,7 +23,7 @@ const UserSessionSchema = new Schema<IUserSession>(
     expiresAt: {
       type: Date,
       required: true,
-      index: { expireAfterSeconds: 0 }, // MongoDB TTL index
+      index: { expireAfterSeconds: 0 }, // TTL index
     },
   },
   {
@@ -31,8 +31,8 @@ const UserSessionSchema = new Schema<IUserSession>(
   },
 )
 
-// Index for efficient queries
-UserSessionSchema.index({ userId: 1 })
+// Index for faster queries
 UserSessionSchema.index({ sessionToken: 1 })
+UserSessionSchema.index({ userId: 1 })
 
 export default mongoose.models.UserSession || mongoose.model<IUserSession>("UserSession", UserSessionSchema)

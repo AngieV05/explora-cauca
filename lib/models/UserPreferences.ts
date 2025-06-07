@@ -1,7 +1,6 @@
-import mongoose, { type Document, Schema } from "mongoose"
+import mongoose, { Schema, type Document } from "mongoose"
 
 export interface IUserPreferences extends Document {
-  _id: string
   userId: mongoose.Types.ObjectId
   notifications: {
     email: boolean
@@ -48,6 +47,9 @@ const UserPreferencesSchema = new Schema<IUserPreferences>(
     timestamps: true,
   },
 )
+
+// Index for faster queries
+UserPreferencesSchema.index({ userId: 1 })
 
 export default mongoose.models.UserPreferences ||
   mongoose.model<IUserPreferences>("UserPreferences", UserPreferencesSchema)
