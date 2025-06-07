@@ -1,5 +1,11 @@
-import bcrypt from "bcryptjs"
-import { connectDB } from "./mongodb"
-import User from "./models/User"
-import UserSession from "./models/UserSession"
-import UserPreferences from "./models/UserPreferences"
+export interface UserData {
+  id: string
+  email: string
+  name: string
+  phone?: string
+  role: "user" | "admin"
+  avatar?: string
+  emailVerified: boolean
+  createdAt: string
+  updatedAt: string
+}

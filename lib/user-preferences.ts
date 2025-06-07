@@ -1,5 +1,26 @@
-import { connectDB } from "./mongodb"
+import connectDB from "./mongodb"
 import UserPreferences from "./models/UserPreferences"
+
+export interface UserPreferencesData {
+  id: string
+  userId: string
+  notifications: {
+    email: boolean
+    push: boolean
+    sms: boolean
+  }
+  privacy: {
+    profileVisible: boolean
+    activityVisible: boolean
+  }
+  preferences: {
+    language: string
+    theme: string
+    region: string
+  }
+  createdAt: string
+  updatedAt: string
+}
 
 export async function getUserPreferences(userId: string) {
   try {
