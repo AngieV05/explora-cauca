@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -8,38 +8,75 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Settings, Bell, Globe, Shield, Palette, Save } from "lucide-react"
+import { Settings, Bell, Globe, Shield, Palette, Save, Loader2 } from "lucide-react"
 import { useAuth } from "@/components/auth-provider"
 import { redirect } from "next/navigation"
+import { getUserPreferences, updateUserPreferences } from "@/lib/user-preferences"
 
 export default function ConfiguracionPage() {
   const { user } = useAuth()
-  const [settings, setSettings] = useState({
-    notifications: {
-      email: true,
-      push: false,
-      sms: false,
-    },
-    privacy: {
-      profileVisible: true,
-      activityVisible: false,
-    },
-    preferences: {
-      language: "es",
-      theme: "system",
-      region: "cauca",
-    },
-  })
+  const [settings, setSettings] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (user) {
+      loadUserPreferences()
+    }
+  }, [user])
+
+  const loadUserPreferences = async () => {
+    if (!user) return
+
+    setLoading(true)
+    const preferences = await getUserPreferences(user.id)
+
+    if (preferences) {
+      setSettings({
+        notifications: {
+          email: preferences.notifications_email,
+          push: preferences.notifications_push,
+          sms: preferences.notifications_sms,
+        },
+        privacy: {
+          profileVisible: preferences.privacy_profile_visible,
+          activityVisible: preferences.privacy_activity_visible,
+        },
+        preferences: {
+          language: preferences.language,
+          theme: preferences.theme,
+          region: preferences.region,
+        },
+      })
+    }
+    setLoading(false)
+  }
 
   if (!user) {
     redirect("/")
   }
 
-  const handleSave = () => {
-    // Simular guardado
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  const handleSave = async () => {
+    if (!user || !settings) return
+
+    const success = await updateUserPreferences(user.id, {
+      notifications_email: settings.notifications.email,
+      notifications_push: settings.notifications.push,
+      notifications_sms: settings.notifications.sms,
+      privacy_profile_visible: settings.privacy.profileVisible,
+      privacy_activity_visible: settings.privacy.activityVisible,
+      language: settings.preferences.language,
+      theme: settings.preferences.theme,
+      region: settings.preferences.region,
+    })
+
+    if (success) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } else {
+      setError("Error al guardar la configuración")
+    }
   }
 
   const updateNotification = (key: string, value: boolean) => {
@@ -63,6 +100,18 @@ export default function ConfiguracionPage() {
     }))
   }
 
+  if (loading || !settings) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+        <div className="container py-12">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
       <div className="container py-12">
@@ -75,6 +124,13 @@ export default function ConfiguracionPage() {
           <Alert className="mb-6">
             <Save className="h-4 w-4" />
             <AlertDescription className="text-green-600">Configuración guardada exitosamente.</AlertDescription>
+          </Alert>
+        )}
+
+        {error && (
+          <Alert className="mb-6">
+            <Save className="h-4 w-4" />
+            <AlertDescription className="text-red-600">{error}</AlertDescription>
           </Alert>
         )}
 

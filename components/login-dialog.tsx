@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2, Mail, Lock, User, Phone } from "lucide-react"
+import { Loader2, Mail, Lock, User, Phone, CheckCircle } from "lucide-react"
 import { useAuth } from "./auth-provider"
 
 export function LoginDialog() {
@@ -32,19 +32,21 @@ export function LoginDialog() {
   })
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const { login, isLoading } = useAuth()
+  const [activeTab, setActiveTab] = useState("login")
+  const { login, register, isLoading } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    const success = await login(loginEmail, loginPassword)
-    if (success) {
+    const result = await login(loginEmail, loginPassword)
+    if (result.success) {
       setOpen(false)
       setLoginEmail("")
       setLoginPassword("")
+      setError("")
     } else {
-      setError("Credenciales incorrectas. Intenta de nuevo.")
+      setError(result.error || "Error al iniciar sesión")
     }
   }
 
@@ -64,9 +66,25 @@ export function LoginDialog() {
       return
     }
 
-    // Simular registro
-    setTimeout(() => {
-      setSuccess("¡Registro exitoso! Ya puedes iniciar sesión.")
+    if (!registerData.name.trim()) {
+      setError("El nombre es requerido")
+      return
+    }
+
+    if (!registerData.email.trim()) {
+      setError("El email es requerido")
+      return
+    }
+
+    const result = await register(
+      registerData.email,
+      registerData.password,
+      registerData.name,
+      registerData.phone || undefined,
+    )
+
+    if (result.success) {
+      setSuccess("¡Registro exitoso! Bienvenido a Explora Cauca.")
       setRegisterData({
         name: "",
         email: "",
@@ -74,11 +92,44 @@ export function LoginDialog() {
         password: "",
         confirmPassword: "",
       })
-    }, 1000)
+      setTimeout(() => {
+        setOpen(false)
+        setSuccess("")
+      }, 2000)
+    } else {
+      setError(result.error || "Error al registrar usuario")
+    }
+  }
+
+  const resetForm = () => {
+    setError("")
+    setSuccess("")
+    setLoginEmail("")
+    setLoginPassword("")
+    setRegisterData({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    })
+  }
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+    if (!newOpen) {
+      resetForm()
+    }
+  }
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    setError("")
+    setSuccess("")
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>Iniciar Sesión</Button>
       </DialogTrigger>
@@ -90,7 +141,7 @@ export function LoginDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
             <TabsTrigger value="register">Registrarse</TabsTrigger>
@@ -110,6 +161,7 @@ export function LoginDialog() {
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -126,6 +178,7 @@ export function LoginDialog() {
                     onChange={(e) => setLoginPassword(e.target.value)}
                     className="pl-10"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -148,7 +201,7 @@ export function LoginDialog() {
               </Button>
 
               <div className="text-center">
-                <Button variant="link" className="text-sm">
+                <Button variant="link" className="text-sm" type="button">
                   ¿Olvidaste tu contraseña?
                 </Button>
               </div>
@@ -169,6 +222,7 @@ export function LoginDialog() {
                     onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
                     className="pl-10"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -185,6 +239,7 @@ export function LoginDialog() {
                     onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
                     className="pl-10"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -200,6 +255,7 @@ export function LoginDialog() {
                     value={registerData.phone}
                     onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
                     className="pl-10"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -216,6 +272,7 @@ export function LoginDialog() {
                     onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                     className="pl-10"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -232,6 +289,7 @@ export function LoginDialog() {
                     onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
                     className="pl-10"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -244,6 +302,7 @@ export function LoginDialog() {
 
               {success && (
                 <Alert>
+                  <CheckCircle className="h-4 w-4" />
                   <AlertDescription className="text-green-600">{success}</AlertDescription>
                 </Alert>
               )}
