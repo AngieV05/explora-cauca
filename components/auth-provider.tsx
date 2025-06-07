@@ -1,15 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  role: "user" | "admin"
-  avatar?: string
-  createdAt: string
-}
+import { mockUsers, type User } from "@/lib/mock-data"
 
 interface AuthContextType {
   user: User | null
@@ -19,26 +11,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-// Usuarios de ejemplo
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Juan Pérez",
-    email: "juan@example.com",
-    role: "user",
-    avatar: "/placeholder.svg?height=40&width=40",
-    createdAt: "2023-01-15T10:00:00Z",
-  },
-  {
-    id: "2",
-    name: "María González",
-    email: "admin@example.com",
-    role: "admin",
-    avatar: "/placeholder.svg?height=40&width=40",
-    createdAt: "2022-11-20T08:30:00Z",
-  },
-]
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
