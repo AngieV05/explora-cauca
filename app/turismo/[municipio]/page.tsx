@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -24,6 +25,7 @@ import {
   Church,
   Waves,
   TreePine,
+  Info,
 } from "lucide-react"
 import { getMunicipioBySlug, getAllMunicipioSlugs } from "@/lib/municipios-data"
 
@@ -81,6 +83,8 @@ const getAttractionIcon = (tipo: string) => {
       return <Users className="h-4 w-4 text-amber-500" />
     case "arquitectura":
       return <Church className="h-4 w-4 text-gray-500" />
+    case "rural":
+      return <TreePine className="h-4 w-4 text-green-600" />
     default:
       return <MapPin className="h-4 w-4 text-gray-500" />
   }
@@ -99,6 +103,9 @@ export default function MunicipioPage({ params }: PageProps) {
   if (!municipio) {
     notFound()
   }
+
+  // Verificar si es un municipio con datos básicos (generado automáticamente)
+  const isBasicData = !municipio.destacado && municipio.rating === 3.5
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/10 dark:to-slate-900">
@@ -169,6 +176,17 @@ export default function MunicipioPage({ params }: PageProps) {
       </section>
 
       <div className="container py-12">
+        {/* Alerta para municipios con datos básicos */}
+        {isBasicData && (
+          <Alert className="mb-8">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Información en desarrollo:</strong> Estamos trabajando para completar la información detallada de
+              este municipio. Los datos mostrados son básicos y serán actualizados próximamente.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Contenido principal */}
           <div className="lg:col-span-2">
