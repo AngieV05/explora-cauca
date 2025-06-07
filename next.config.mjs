@@ -11,6 +11,9 @@ const nextConfig = {
     domains: ['placeholder.com', 'via.placeholder.com'],
     unoptimized: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: ['mongoose'],
+  },
 }
 
 export default nextConfig

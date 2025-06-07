@@ -5,12 +5,21 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import Navigation from "@/components/navigation"
 import { AuthProvider } from "@/components/auth-provider"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Explora Cauca - Portal",
-  description: "Portal web para exploración turística, gestión de archivos y procesamiento de datos",
+  title: "Explora Cauca - Portal Turístico",
+  description:
+    "Portal web para exploración turística del Cauca, gestión de archivos y procesamiento de datos con chatbot IA",
+  keywords: ["Cauca", "turismo", "Colombia", "viajes", "cultura", "naturaleza"],
+  authors: [{ name: "Explora Cauca Team" }],
+  openGraph: {
+    title: "Explora Cauca - Portal Turístico",
+    description: "Descubre los mejores destinos turísticos del Cauca con nuestro portal inteligente",
+    type: "website",
+  },
     generator: 'v0.dev'
 }
 
@@ -32,9 +41,11 @@ export default function RootLayout({
                   <p className="text-sm text-muted-foreground">
                     &copy; {new Date().getFullYear()} Explora Cauca. Todos los derechos reservados.
                   </p>
+                  <p className="text-sm text-muted-foreground">Portal turístico inteligente del Cauca</p>
                 </div>
               </footer>
             </div>
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>
